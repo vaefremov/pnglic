@@ -5,7 +5,7 @@ This is a backend server meeting the following requirements:
 
 - Should use the current database
 - CRUD Customers
-- CRUD license keys - both HASP and Gardian
+- CRUD hardware license keys - both HASP and Gardian
 - Manage distribution of keys over customers, including operation like transferring key from one customer to another
 - Generate license files of current kind
 - Generate license files supporting additional keys for end-users
