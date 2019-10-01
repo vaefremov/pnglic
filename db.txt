@@ -1,3 +1,5 @@
+! Legacy schema in sqlite3
+
 CREATE TABLE organizations (id integer primary key AUTOINCREMENT, name varchar(40), contact text, comments text);
 CREATE TABLE keys (id varchar(10) primary key not null, assigned_org integer, comments text);
 CREATE TABLE history (orgname VARCHAR(40), whenissued VARCHAR(16) DEFAULT CURRENT_TIMESTAMP NOT NULL, xml TEXT);
