@@ -1,0 +1,318 @@
+openapi: '3.0.2'
+info:
+  title: PANGEA License Manager
+  version: '0.1'
+servers:
+  - url: http://localhost:9995/v1
+paths:
+  /ping:
+    get:
+      summary: Return the backend version, DB version, additional info
+      operationId: ping
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PingOK"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /clients:
+    get:
+      summary: Returns list of all organizations related to licensation
+      operationId: listClients
+      responses:
+        '200':
+          description: Array of organizations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Organization"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /keys:
+    get:
+      summary: Returns general list of keys
+      operationId: listKeys
+      parameters:
+        - name: clientId
+          in: query
+          description: Limit the output to the only client identified with ID
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Array of keys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HardwareKey"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /history/{clientId}:
+    parameters:
+    - name: clientId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: int32
+    get:
+      summary: Returns list of all issues if license files to the specified client
+      operationId: listHistoryItems
+      responses:
+        '200':
+          description: Array of history items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HistoryItem"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /licenseFile/{clientId}/{timeOfIssue}:
+    parameters:
+    - name: clientId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    - name: timeOfIssue
+      in: path
+      required: true
+      description: Time of issue in ISO format
+      schema:
+        type: string
+    get:
+      summary: Get license file by client id and timestamp of issue
+      operationId: licenseFile
+      responses:
+        '200':
+          description: License file in XML format
+          content:
+            application/xml:
+              schema:
+                type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /features:
+    get:
+      summary: Returns list of features
+      operationId: listFeatures
+      responses:
+        '200':
+          description: Array of features
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Feature"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /packageContent/{packageName}:
+    parameters:
+      - name: packageName
+        in: path
+        required: true
+        description: Name of the package
+        schema:
+          type: string
+    get:
+      summary: Returns list of features belonging to the specified package
+      operationId: packageContent
+      responses:
+        '200':
+          description: Array of features
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - package
+                  - features
+                properties:
+                  package:
+                    $ref: "#/components/schemas/Feature"
+                  features:
+                    $ref: "#/components/schemas/Features"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /licensedFeaturesForKey/{keyId}:
+    parameters:
+    - name: keyId
+      in: path
+      required: true
+      description: Key id to that the currently availble licensed features pertains to
+      schema:
+        type: string
+    get:
+      summary: Returns list of all license features related to a given key
+      operationId: licensedFeaturesForKey
+      responses:
+        '200':
+          description: Array of licenses features
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LicensedFeatures"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    HardwareKey:
+      type: object
+      required:
+        - id
+        - kind
+        - comments
+        - currentOwnerId
+      properties:
+        id:
+          type: string
+        kind:
+          type: string
+        comments:
+          type: string
+        currentOwnerId:
+          type: integer
+          format: int32
+    Organization:
+      type: object
+      required:
+        - id
+        - name
+        - contacts
+        - comments
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        contacts:
+          type: string
+        comments:
+          type: string
+    HistoryItem:
+      type: object
+      required:
+        - orgName
+        - whenIssued
+      properties:
+        orgName:
+          type: string
+        whenIssued:
+          type: string
+    Feature:
+      type: object
+      required:
+        - name
+        # - isPackage
+        # - description
+      properties:
+        name:
+          type: string
+        isPackage:
+          type: boolean
+        description:
+          type: string
+    Features:
+      type: array
+      items:
+        $ref: "#/components/schemas/Feature"
+    CountedFeature:
+      type: object
+      required:
+        - name
+        - version
+        - count
+      properties:
+        name:
+          type: string
+        version:
+          type: number
+          format: float
+        count:
+          type: integer
+    LicensedFeature:
+      type: object
+      required:
+        - countedFeature
+        - start
+        - end
+      properties:
+        countedFeature:
+          $ref: "#/components/schemas/CountedFeature"
+        start:
+          type: string
+          description: YYYY-MM-DD date
+        end:
+          type: string
+          description: YYYY-MM-DD date
+    LicensedFeatures:
+      type: array
+      items:
+        $ref: "#/components/schemas/LicensedFeature"
+    PingOK:
+      type: object
+      required:
+        - backVersion
+        - dbVersion
+      properties:
+        backVersion:
+          type: string
+        dbVersion:
+          type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
