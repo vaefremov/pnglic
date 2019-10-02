@@ -2,7 +2,9 @@ package api_test
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
+	"time"
 
 	"github.com/vaefremov/pnglic/api"
 )
@@ -112,4 +114,35 @@ func TestIsPackage(t *testing.T) {
 		t.Errorf("%s is  not expected to b a package", pkg)
 	}
 
+}
+
+func TestUpdateLicenseSet(t *testing.T) {
+	db := api.MustInMemoryPool()
+	keyId := "fake_key"
+	featureFormat := "QQ%02d"
+	start, _ := time.Parse("02/01/2006", "20/06/2018")
+	end, _ := time.Parse("02/01/2006", "21/12/2019")
+	ls := []api.LicenseSetItem{
+		api.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 1), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
+		api.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 2), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
+	}
+	err := db.UpdateLicenseSet(keyId, ls)
+	if err != nil {
+		t.Error(err)
+	}
+	ls1, err := db.LicensesSetByKeyId(keyId)
+	if err != nil {
+		t.Error(err)
+	}
+	if !reflect.DeepEqual(ls, ls1) {
+		t.Error("Should be equal", ls, ls1)
+	}
+	lsBad := []api.LicenseSetItem{
+		api.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 1), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
+		api.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 1), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
+	}
+	err = db.UpdateLicenseSet(keyId, lsBad)
+	if err == nil {
+		t.Error("Expected: UNIQUE constraint failed: licensesets.keyid, licensesets.feat")
+	}
 }

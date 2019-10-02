@@ -78,6 +78,26 @@ func MustNewPool(dsn string) (conn *DbConn) {
 	return
 }
 
+// MustInMemoryPool creates and initializes in-memory database
+func MustInMemoryPool() (db *DbConn) {
+	db = MustNewPool(":memory:")
+	sql := `CREATE TABLE organizations (id integer primary key AUTOINCREMENT, name varchar(40), contact text, comments text);
+	CREATE TABLE keys (id varchar(10) primary key not null, assigned_org integer, comments text);
+	CREATE TABLE history (orgname VARCHAR(40), whenissued VARCHAR(16) DEFAULT CURRENT_TIMESTAMP NOT NULL, xml TEXT);
+	
+	CREATE TABLE features (feat varchar(16) primary key, ispackage integer default 0, description text);
+	CREATE TABLE pkgcontent (pkg varchar(10), feat varchar(10), primary key (pkg, feat));
+	
+	CREATE TABLE licensesets (keyid varchar(10), feat varchar(16), ver float, count integer, start DATE, end DATE, dup varchar(4), primary key (keyid, feat));
+	
+	CREATE TABLE templates (name varchar(10) not null, feat varchar(16), ver float, dup varchar(4), primary key (name, feat));
+	`
+	if _, err := db.conn.Exec(sql); err != nil {
+		panic(err)
+	}
+	return
+}
+
 func (db *DbConn) Keys() (res []HWKey, err error) {
 	res = []HWKey{}
 	err = db.conn.Select(&res, "select id, assigned_org, comments from keys")
@@ -150,6 +170,30 @@ func (db *DbConn) IsPackage(pkg string) (res bool, err error) {
 	tmp := Feature{}
 	err = db.conn.Get(&tmp, "select feat, ispackage from features where feat=?", pkg)
 	res = tmp.IsPackage
+	return
+}
+
+func (db *DbConn) UpdateLicenseSet(keyId string, newLicensesSet []LicenseSetItem) (err error) {
+	tx, err := db.conn.Beginx()
+	if err != nil {
+		return
+	}
+	// TODO: We should check if key is valid
+	// tx.Query(...)
+	_, err = tx.Exec("delete from licensesets where keyid=?", keyId)
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	for _, i := range newLicensesSet {
+		_, err = tx.Exec("insert into licensesets (keyid, feat, ver, count, start, end, dup) values (?, ?, ?, ?, ?, ?, ?) ",
+			i.KeyID, i.Feature, i.Version, i.Count, i.Start.Format("02/01/2006"), i.End.Format("02/01/2006"), i.DupGroup)
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+	}
+	err = tx.Commit()
 	return
 }
 
