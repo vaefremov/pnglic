@@ -293,6 +293,8 @@ components:
           format: float
         count:
           type: integer
+        dupGroup:
+          type: string
     LicensedFeature:
       type: object
       required:
