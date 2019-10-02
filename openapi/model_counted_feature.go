@@ -10,10 +10,8 @@
 package openapi
 
 type CountedFeature struct {
-
-	Name string `json:"name"`
-
-	Version float32 `json:"version"`
-
-	Count int32 `json:"count"`
+	Name     string  `json:"name"`
+	Version  float32 `json:"version"`
+	Count    int32   `json:"count"`
+	DupGroup string  `json:"dupGroup,omitempty"`
 }
