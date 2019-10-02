@@ -204,6 +204,34 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
       summary: Returns list of all license features related to a given key
+    post:
+      operationId: updateLicensedFeaturesForKey
+      parameters:
+      - description: Key id to that the currently availble licensed features pertains
+          to
+        explode: false
+        in: path
+        name: keyId
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicensedFeatures'
+      responses:
+        201:
+          description: Null response. Features updated
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Update license features for the given key ID, replace the previousely
+        defined ones
 components:
   schemas:
     HardwareKey:
