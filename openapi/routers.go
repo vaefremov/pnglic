@@ -125,4 +125,11 @@ var routes = Routes{
 		"/v1/ping",
 		Ping,
 	},
+
+	{
+		"UpdateLicensedFeaturesForKey",
+		http.MethodPost,
+		"/v1/licensedFeaturesForKey/:keyId",
+		UpdateLicensedFeaturesForKey,
+	},
 }

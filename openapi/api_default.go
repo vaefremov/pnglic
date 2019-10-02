@@ -52,3 +52,8 @@ func Ping(c *gin.Context) {
 func PackageContent(c *gin.Context) {
 	PackageContentImpl(c)
 }
+
+// UpdateLicensedFeaturesForKey - Update license features for the given key ID, replace the previousely defined ones
+func UpdateLicensedFeaturesForKey(c *gin.Context) {
+	UpdateLicensedFeaturesForKeyImpl(c)
+}
