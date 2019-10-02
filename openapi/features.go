@@ -3,6 +3,7 @@ package openapi
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/vaefremov/pnglic/api"
@@ -21,7 +22,8 @@ func LicensedFeaturesForKeyImpl(c *gin.Context) {
 	for _, f := range tmp {
 		res = append(res, LicensedFeature{CountedFeature: CountedFeature{
 			Name:    f.Feature,
-			Version: f.Version, Count: int32(f.Count)}, Start: f.Start.Format("2006-01-02"), End: f.End.Format("2006-01-02")})
+			Version: f.Version, Count: int32(f.Count), DupGroup: f.DupGroup},
+			Start: f.Start.Format("2006-01-02"), End: f.End.Format("2006-01-02")})
 	}
 	c.JSON(http.StatusOK, res)
 }
@@ -68,4 +70,40 @@ func PackageContentImpl(c *gin.Context) {
 	}
 	res.Features = tmpFeatures
 	c.JSON(http.StatusOK, res)
+}
+
+// UpdateLicensedFeaturesForKeyImpl - Update license features for the given key ID, replace the previousely defined ones
+func UpdateLicensedFeaturesForKeyImpl(c *gin.Context) {
+	db := c.MustGet("db").(*api.DbConn)
+	keyID := c.Param("keyId")
+	// TODO: should check that keyId ia a valid key
+	res := []LicensedFeature{}
+	err := c.BindJSON(&res)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 20, Message: "Malformed input: " + err.Error()})
+		return
+	}
+	fmt.Println(res)
+	newLicset := []api.LicenseSetItem{}
+	for _, f := range res {
+		start, err := time.Parse("2006-01-02", f.Start)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 20, Message: "Malformed input: " + err.Error()})
+			return
+		}
+		end, err := time.Parse("2006-01-02", f.End)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 20, Message: "Malformed input: " + err.Error()})
+			return
+		}
+		newFeature := api.LicenseSetItem{KeyID: keyID, Feature: f.CountedFeature.Name, Version: f.CountedFeature.Version, Count: int(f.CountedFeature.Count), Start: start, End: end, DupGroup: f.CountedFeature.DupGroup}
+		newLicset = append(newLicset, newFeature)
+	}
+	fmt.Println(newLicset)
+	err = db.UpdateLicenseSet(keyID, newLicset)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 20, Message: "Input rejected: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, "")
 }
