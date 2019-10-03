@@ -124,6 +124,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /makeLicenseFile/{clientId}/{keyId}:
+    parameters:
+    - name: clientId
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int32
+    - name: keyId
+      in: path
+      required: true
+      description: ID of key to generate license file for (set of licenses stored in db is used)
+      schema:
+        type: string
+    get:
+      summary: Generate license file from the current set of licenses related to key ID and store it in the history 
+      operationId: makeLicenseFile
+      responses:
+        '200':
+          description: License file in XML format
+          content:
+            application/xml:
+              schema:
+                type: string
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /features:
     get:
       summary: Returns list of features
