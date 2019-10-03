@@ -43,6 +43,11 @@ func ListKeys(c *gin.Context) {
 	ListKeysImpl(c)
 }
 
+// MakeLicenseFile - Generate license file from the current set of licenses related to key ID and store it in the history
+func MakeLicenseFile(c *gin.Context) {
+	MakeLicenseFileImpl(c)
+}
+
 // Ping - Return the backend version, DB version, additional info
 func Ping(c *gin.Context) {
 	PingImpl(c)
