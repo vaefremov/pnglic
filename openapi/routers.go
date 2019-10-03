@@ -114,6 +114,12 @@ var routes = Routes{
 		ListKeys,
 	},
 	{
+		"MakeLicenseFile",
+		http.MethodGet,
+		"/v1/makeLicenseFile/:clientId/:keyId",
+		MakeLicenseFile,
+	},
+	{
 		"PackageContent",
 		http.MethodGet,
 		"/v1/packageContent/:packageName",
