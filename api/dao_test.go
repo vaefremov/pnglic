@@ -159,6 +159,35 @@ func TestUpdateLicenseSet(t *testing.T) {
 	}
 }
 
+func TestIsKeyBelongsToOrg(t *testing.T) {
+	db := testDB
+	cases := []struct {
+		keyID      string
+		orgID      int
+		expRes     bool
+		isErrorExp bool
+	}{
+		{"123abc", 1, true, false},
+		{"123cbc", 1, false, false},
+		{"impossible!", 1, false, true},
+		{"123cbc", 2, true, false},
+		{"123cbc!!", 2, false, true},
+		{"123cbc", 4, false, false},
+	}
+	for i, c := range cases {
+		res, err := db.IsKeyBelongsToOrg(c.keyID, c.orgID)
+		fmt.Println(i, c, res, err)
+		if c.isErrorExp != (err != nil) {
+			t.Error(i, "Test failed, error expected")
+			continue
+		}
+		if c.expRes != res {
+			t.Error(i, "Test failed, expected ", c.expRes, " got ", res)
+			continue
+		}
+	}
+}
+
 func TestMain(m *testing.M) {
 	testDB = api.MustInMemoryTestPool()
 	os.Exit(m.Run())

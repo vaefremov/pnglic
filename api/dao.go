@@ -125,6 +125,22 @@ func (db *DbConn) HistoryForClientId(id int) (res []HistoryItem, err error) {
 	return
 }
 
+// IsKeyBelongsToOrg checks if the given key ID can be found in keys table and that
+// the key number is registered with the Organization identified by orgID
+func (db *DbConn) IsKeyBelongsToOrg(keyID string, orgID int) (res bool, err error) {
+	var numberOfKeys int
+	if err = db.conn.QueryRow("select count(*) from keys where id=?", keyID).Scan(&numberOfKeys); err != nil {
+		return
+	}
+	if numberOfKeys == 0 {
+		return false, fmt.Errorf("the key id %s is invalid", keyID)
+	}
+	if err = db.conn.QueryRow("select count(*) from keys where id=? and assigned_org=?", keyID, orgID).Scan(&numberOfKeys); err != nil {
+		return
+	}
+	return numberOfKeys > 0, nil
+}
+
 func (db *DbConn) LicensesSetByKeyId(keyId string) (res []LicenseSetItem, err error) {
 	tmp := []licenseSetItem{}
 	res = []LicenseSetItem{}
