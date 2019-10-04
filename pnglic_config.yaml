@@ -1,0 +1,6 @@
+port: 8080
+dsn: "/Users/efremov/Projects/LIC/PNGLicenseManager/Backend/licset.sqlite"
+encoderOld: "/Users/efremov/Projects/LIC/LmgenEmul/lmgen_hasp.sh"
+encoderV3: "/Users/efremov/Projects/LIC/LmgenEmul/lmgen_hasp.sh"
+secretsHASP: "/Users/efremov/Projects/LIC/lm/licenses/5A6DD26A.secret"
+secretsGuardant: "/Users/efremov/Projects/LIC/lm/licenses/38897329.secret"

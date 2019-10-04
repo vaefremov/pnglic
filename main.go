@@ -13,25 +13,104 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
-	// WARNING!
-	// Change this to a fully-qualified import path
-	// once you place this file into your project.
-	// For example,
-	//
-	//    sw "github.com/myname/myrepo/go"
-	//
 	sw "github.com/vaefremov/pnglic/openapi"
+	"gopkg.in/yaml.v2"
 )
 
-var port = flag.Int("p", 9995, "port to start server on")
-var dsnPtr = flag.String("dsn", "/Users/efremov/Projects/LIC/PNGLicenseManager/Backend/licset.sqlite", "Path to sqlite3 database")
+const (
+	defaultPort               = 9995
+	defaultDsn                = "/Users/efremov/Projects/LIC/PNGLicenseManager/Backend/licset.sqlite"
+	defaultLmGenPath          = "/Users/efremov/Projects/LIC/LmgenEmul/lmgen_hasp.sh"
+	defaultSecretPathHASP     = "/Users/efremov/Projects/LIC/lm/licenses/5A6DD26A.secret"
+	defaultSecretPathGuardant = "/Users/efremov/Projects/LIC/lm/licenses/5A6DD26A.secret"
+)
+
+var port = flag.Int("p", -1, "Port to start server on")
+var dsnPtr = flag.String("dsn", "", "Path to sqlite3 database")
+var configPath = flag.String("c", "./pnglic_config.yaml", "Path to config file")
+var lmgenPath = flag.String("lmgenHasp", "", "Path to legacy version of lmgen")
+var secretPathHASP = flag.String("sHasp", "", "Path to the HASP secret file")
+var secretPathGuardant = flag.String("sGuardant", "", "Path to the Guardant secret file")
+var writeConfigToFile = flag.Bool("x", false, "Generate config file filled with default parameters")
+
+type Config struct {
+	Port                 int    `yaml:"port"`
+	DSN                  string `yaml:"dsn"`
+	LicfileEncoderLegacy string `yaml:"encoderOld"`
+	LicfileEncoderV3     string `yaml:"encoderV3"`
+	SecretsHasp          string `yaml:"secretsHASP"`
+	SecretsGuardant      string `yaml:"secretsGuardant"`
+}
 
 func main() {
 	flag.Parse()
-	log.Printf("Server starting on port ", *port)
+	conf := readConfig(*configPath)
+	conf.Report()
 
-	router := sw.NewRouter(*dsnPtr)
+	router := sw.NewRouter(conf.DSN)
 
-	log.Fatal(router.Run(fmt.Sprintf(":%d", *port)))
+	log.Fatal(router.Run(fmt.Sprintf(":%d", conf.Port)))
+}
+
+func readConfig(configPath string) (conf *Config) {
+	conf = &Config{}
+	conf.InsertDefaults()
+	log.Printf("Reading config from: %s", configPath)
+	f, err := os.Open(configPath)
+	if err != nil {
+		log.Println("Warning", err)
+	}
+	decoder := yaml.NewDecoder(f)
+	err = decoder.Decode(conf)
+	if err != nil {
+		log.Println("Warning", err)
+	}
+	conf.UpdateFromCLI()
+	return
+}
+
+// Report prints the effective config parameters
+func (c Config) Report() {
+	fmt.Printf("Effective config:\n")
+	fmt.Printf("  DSN:                   %s\n", c.DSN)
+	fmt.Printf("  Port:                  %d\n", c.Port)
+	fmt.Printf("  Legacy encoder:        %s\n", c.LicfileEncoderLegacy)
+	fmt.Printf("  V3 encoder:            %s\n", c.LicfileEncoderV3)
+	fmt.Printf("  HASP secrets file:     %s\n", c.SecretsHasp)
+	fmt.Printf("  Guardant secrets file: %s\n", c.SecretsGuardant)
+}
+
+func (c Config) Write(configPath string) (err error) {
+
+	return
+}
+
+// UpdateFromCLI inserts the values of config parameters specified via the CLI
+func (c *Config) UpdateFromCLI() {
+	if *dsnPtr != "" {
+		c.DSN = *dsnPtr
+	}
+	if *port != -1 {
+		c.Port = *port
+	}
+	if *lmgenPath != "" {
+		c.LicfileEncoderLegacy = *lmgenPath
+	}
+	if *secretPathHASP != "" {
+		c.SecretsHasp = *secretPathHASP
+	}
+	if *secretPathGuardant != "" {
+		c.SecretsGuardant = *secretPathGuardant
+	}
+}
+
+// InsertDefaults inserts the built-in default values of config parameters
+func (c *Config) InsertDefaults() {
+	c.DSN = defaultDsn
+	c.Port = defaultPort
+	c.LicfileEncoderLegacy = defaultLmGenPath
+	c.SecretsHasp = defaultSecretPathHASP
+	c.SecretsGuardant = defaultSecretPathGuardant
 }
