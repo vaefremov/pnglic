@@ -14,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/server"
 )
 
 // Route is the information for every URI.
@@ -39,8 +40,8 @@ func AddDatabase(db *api.DbConn) gin.HandlerFunc {
 }
 
 // NewRouter returns a new router.
-func NewRouter(dsn string) *gin.Engine {
-	db := api.MustNewPool(dsn)
+func NewRouter(conf *server.Config) *gin.Engine {
+	db := api.MustNewPool(conf.DSN)
 	router := gin.Default()
 	router.Use(AddDatabase(db))
 	for _, route := range routes {
