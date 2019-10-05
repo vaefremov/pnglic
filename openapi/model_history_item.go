@@ -10,7 +10,6 @@
 package openapi
 
 type HistoryItem struct {
-
 	OrgName string `json:"orgName"`
 
 	WhenIssued string `json:"whenIssued"`

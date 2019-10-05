@@ -10,7 +10,6 @@
 package openapi
 
 type LicensedFeature struct {
-
 	CountedFeature CountedFeature `json:"countedFeature"`
 
 	// YYYY-MM-DD date

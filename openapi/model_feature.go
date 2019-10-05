@@ -10,7 +10,6 @@
 package openapi
 
 type Feature struct {
-
 	Name string `json:"name"`
 
 	IsPackage bool `json:"isPackage,omitempty"`

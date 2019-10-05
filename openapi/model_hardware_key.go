@@ -10,7 +10,6 @@
 package openapi
 
 type HardwareKey struct {
-
 	Id string `json:"id"`
 
 	Kind string `json:"kind"`

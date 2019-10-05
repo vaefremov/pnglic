@@ -10,7 +10,6 @@
 package openapi
 
 type InlineResponse200 struct {
-
 	Package Feature `json:"package"`
 
 	Features []Feature `json:"features"`

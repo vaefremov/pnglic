@@ -10,7 +10,6 @@
 package openapi
 
 type PingOk struct {
-
 	BackVersion string `json:"backVersion"`
 
 	DbVersion string `json:"dbVersion"`
