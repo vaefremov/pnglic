@@ -75,10 +75,10 @@ var routes = Routes{
 	},
 
 	{
-		"LicenseFile",
+		"HistoryLicenseFile",
 		http.MethodGet,
-		"/v1/licenseFile/:clientId/:timeOfIssue",
-		LicenseFile,
+		"/v1/historyLicenseFile/:clientId/:timeOfIssue",
+		HistoryLicenseFile,
 	},
 
 	{
@@ -115,18 +115,21 @@ var routes = Routes{
 		"/v1/keys",
 		ListKeys,
 	},
+
 	{
 		"MakeLicenseFile",
 		http.MethodGet,
 		"/v1/makeLicenseFile/:clientId/:keyId",
 		MakeLicenseFile,
 	},
+
 	{
 		"PackageContent",
 		http.MethodGet,
 		"/v1/packageContent/:packageName",
 		PackageContent,
 	},
+
 	{
 		"Ping",
 		http.MethodGet,

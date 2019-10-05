@@ -16,8 +16,8 @@ import (
 	"github.com/vaefremov/pnglic/server"
 )
 
-// LicenseFile - Get license file by client id and timestamp of issue
-func LicenseFileImpl(c *gin.Context) {
+// HistoryLicenseFileImpl - Get license file by client id and timestamp of issue
+func HistoryLicenseFileImpl(c *gin.Context) {
 	db := c.MustGet("db").(*api.DbConn)
 	clientID, err := strconv.Atoi(c.Param("clientId"))
 	if err != nil {
@@ -59,6 +59,7 @@ func ExtractKeyIDFromXML(xmlBody string) (keyID string, err error) {
 	return ls.ID, err
 }
 
+// MakeLicenseFileImpl - Generate license file from the current set of licenses related to key ID and store it in the history
 func MakeLicenseFileImpl(c *gin.Context) {
 	db := c.MustGet("db").(*api.DbConn)
 	clientID, err := strconv.Atoi(c.Param("clientId"))

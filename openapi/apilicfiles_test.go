@@ -16,7 +16,7 @@ func TestLicenseFile(t *testing.T) {
 	c, _ := gin.CreateTestContext(w)
 	c.Set("db", api.MustNewPool(api.DSN))
 	c.Params = []gin.Param{gin.Param{Key: "clientId", Value: "55"}, gin.Param{Key: "timeOfIssue", Value: "2018-04-26T14:24:54Z"}}
-	openapi.LicenseFileImpl(c)
+	openapi.HistoryLicenseFileImpl(c)
 	if w.Code != 200 {
 		t.Error("Return code not OK", w.Code)
 	}

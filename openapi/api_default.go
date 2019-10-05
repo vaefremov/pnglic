@@ -13,9 +13,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// LicenseFile - Get license file by client id and timestamp of issue
-func LicenseFile(c *gin.Context) {
-	LicenseFileImpl(c)
+// HistoryLicenseFile - Get license file by client id and timestamp of issue
+func HistoryLicenseFile(c *gin.Context) {
+	HistoryLicenseFileImpl(c)
 }
 
 // LicensedFeaturesForKey - Returns list of all license features related to a given key
