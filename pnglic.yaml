@@ -246,6 +246,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /prolongLicensedFeaturesForKey/{keyId}:
+    parameters:
+    - name: keyId
+      in: path
+      required: true
+      description: Key id to that the currently availble licensed features pertains to
+      schema:
+        type: string
+    - name: byMonths
+      in: query
+      required: false
+      description: Number of months to add to the expiration term of features
+      schema:
+        type: integer
+        minimum: 1
+    - name: till
+      in: query
+      required: false
+      description: Final expiration term of license features
+      schema:
+        type: string
+        format: date
+    post:
+      summary: Update license features for the given key ID, replace the previousely defined ones
+      operationId: prolongLicensedFeaturesForKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LicensedFeatures"
+      responses:
+        '202':
+          description: Null response. Features updated
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     HardwareKey:

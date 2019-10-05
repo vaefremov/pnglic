@@ -138,6 +138,13 @@ var routes = Routes{
 	},
 
 	{
+		"ProlongLicensedFeaturesForKey",
+		http.MethodPost,
+		"/v1/prolongLicensedFeaturesForKey/:keyId",
+		ProlongLicensedFeaturesForKey,
+	},
+
+	{
 		"UpdateLicensedFeaturesForKey",
 		http.MethodPost,
 		"/v1/licensedFeaturesForKey/:keyId",

@@ -58,6 +58,11 @@ func PackageContent(c *gin.Context) {
 	PackageContentImpl(c)
 }
 
+// ProlongLicensedFeaturesForKey - Update license features for the given key ID, replace the previousely defined ones
+func ProlongLicensedFeaturesForKey(c *gin.Context) {
+	ProlongLicensedFeaturesForKeyImpl(c)
+}
+
 // UpdateLicensedFeaturesForKey - Update license features for the given key ID, replace the previousely defined ones
 func UpdateLicensedFeaturesForKey(c *gin.Context) {
 	UpdateLicensedFeaturesForKeyImpl(c)

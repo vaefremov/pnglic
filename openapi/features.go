@@ -3,6 +3,7 @@ package openapi
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -97,6 +98,48 @@ func UpdateLicensedFeaturesForKeyImpl(c *gin.Context) {
 		}
 		newFeature := api.LicenseSetItem{KeyID: keyID, Feature: f.CountedFeature.Name, Version: f.CountedFeature.Version, Count: int(f.CountedFeature.Count), Start: start, End: end, DupGroup: f.CountedFeature.DupGroup}
 		newLicset = append(newLicset, newFeature)
+	}
+	err = db.UpdateLicenseSet(keyID, newLicset)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 20, Message: "Input rejected: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, "")
+}
+
+// ProlongLicensedFeaturesForKeyImpl - Update license features for the given key ID, replace the previousely defined ones
+func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
+	db := c.MustGet("db").(*api.DbConn)
+	keyID := c.Param("keyId")
+	var byMonths int
+	tillDate, err := time.Parse("2006-01-02", c.Param("till"))
+	if err != nil {
+		byMonths, err = strconv.Atoi(c.Param("byMonths"))
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 30, Message: "extension term must be set with either byMonths or till parameters"})
+			return
+		}
+		if byMonths <= 0 {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 30, Message: "invalid extension term (<= 0)"})
+			return
+		}
+	}
+
+	currentLicSet, err := db.LicensesSetByKeyId(keyID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
+		return
+	}
+	newLicset := []api.LicenseSetItem{}
+	for _, f := range currentLicSet {
+		fnew := f
+		// we should have
+		if byMonths > 0 {
+			fnew.End = f.End.AddDate(0, byMonths, 0)
+		} else {
+			fnew.End = tillDate
+		}
+		newLicset = append(newLicset, fnew)
 	}
 	err = db.UpdateLicenseSet(keyID, newLicset)
 	if err != nil {
