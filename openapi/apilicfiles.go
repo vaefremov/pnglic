@@ -3,12 +3,17 @@ package openapi
 import (
 	"encoding/xml"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
+	"os/exec"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/server"
 )
 
 // LicenseFile - Get license file by client id and timestamp of issue
@@ -82,7 +87,7 @@ func MakeLicenseFileImpl(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
 		return
 	}
-	resXML, err = signLicenseFile(resXML)
+	resXML, err = signLicenseFile(c, resXML)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
 		return
@@ -133,7 +138,53 @@ func makeXMLFromTemplate(keyID string, db *api.DbConn, licSet []api.LicenseSetIt
 	return bodyXML, nil
 }
 
-// TODO: just a stub! replace with real code
-func signLicenseFile(bodyXML string) (res string, err error) {
-	return bodyXML, nil
+func signLicenseFile(c *gin.Context, bodyXML string) (res string, err error) {
+	conf := c.MustGet("conf").(*server.Config)
+	xmlfilepath, err := tmpXMLFile(bodyXML)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(xmlfilepath)
+
+	cmd := exec.Command(conf.LicfileEncoderLegacy, "-i", xmlfilepath, "-s", conf.SecretsHasp)
+
+	cmdStdOut, err := cmd.StdoutPipe()
+	if err != nil {
+		return
+	}
+	cmdStdErr, err := cmd.StderrPipe()
+	if err != nil {
+		return
+	}
+	err = cmd.Start()
+	if err != nil {
+		return
+	}
+	stdout, err := ioutil.ReadAll(cmdStdOut)
+	if err != nil {
+		return
+	}
+	stderr, err := ioutil.ReadAll(cmdStdErr)
+	if err != nil {
+		return
+	}
+	if len(stderr) > 0 {
+		return "", fmt.Errorf("encoding utility reported errors %s", string(stderr))
+	}
+
+	return string(stdout), nil
+}
+
+func tmpXMLFile(bodyXML string) (path string, err error) {
+	tempfile, err := ioutil.TempFile("/tmp", "licfile_*.xml")
+	if err != nil {
+		return
+	}
+	if _, err = tempfile.Write([]byte(bodyXML)); err != nil {
+		return
+	}
+	if err = tempfile.Close(); err != nil {
+		return
+	}
+	return tempfile.Name(), nil
 }

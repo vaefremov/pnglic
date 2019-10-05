@@ -32,9 +32,10 @@ type Route struct {
 // Routes is the list of the generated Route.
 type Routes []Route
 
-func AddDatabase(db *api.DbConn) gin.HandlerFunc {
+func addDatabaseAndConf(db *api.DbConn, conf *server.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("db", db)
+		c.Set("conf", conf)
 		c.Next()
 	}
 }
@@ -43,7 +44,7 @@ func AddDatabase(db *api.DbConn) gin.HandlerFunc {
 func NewRouter(conf *server.Config) *gin.Engine {
 	db := api.MustNewPool(conf.DSN)
 	router := gin.Default()
-	router.Use(AddDatabase(db))
+	router.Use(addDatabaseAndConf(db, conf))
 	for _, route := range routes {
 		switch route.Method {
 		case http.MethodGet:
