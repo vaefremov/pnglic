@@ -83,7 +83,6 @@ func UpdateLicensedFeaturesForKeyImpl(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 20, Message: "Malformed input: " + err.Error()})
 		return
 	}
-	fmt.Println(res)
 	newLicset := []api.LicenseSetItem{}
 	for _, f := range res {
 		start, err := time.Parse("2006-01-02", f.Start)
@@ -99,7 +98,6 @@ func UpdateLicensedFeaturesForKeyImpl(c *gin.Context) {
 		newFeature := api.LicenseSetItem{KeyID: keyID, Feature: f.CountedFeature.Name, Version: f.CountedFeature.Version, Count: int(f.CountedFeature.Count), Start: start, End: end, DupGroup: f.CountedFeature.DupGroup}
 		newLicset = append(newLicset, newFeature)
 	}
-	fmt.Println(newLicset)
 	err = db.UpdateLicenseSet(keyID, newLicset)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 20, Message: "Input rejected: " + err.Error()})

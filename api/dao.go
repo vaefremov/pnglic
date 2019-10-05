@@ -147,7 +147,6 @@ func (db *DbConn) LicensesSetByKeyId(keyId string) (res []LicenseSetItem, err er
 	err = db.conn.Select(&tmp, "select keyid, feat, ver, count, cast(start as varchar) as start, cast(end as varchar) as end, dup from licensesets where keyid=?", keyId)
 	if err == nil {
 		for _, lsi := range tmp {
-			fmt.Println(lsi)
 			tmpLsi := LicenseSetItem{KeyID: lsi.KeyID, Feature: lsi.Feature, Version: lsi.Version, Count: lsi.Count, DupGroup: lsi.DupGroup}
 			tmpLsi.Start, err = time.Parse("02/01/2006", lsi.Start)
 			if err != nil {
