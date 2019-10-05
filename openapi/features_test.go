@@ -1,7 +1,9 @@
 package openapi_test
 
 import (
+	"bytes"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -16,8 +18,7 @@ func TestProlongLicensedFeaturesForKeyImpl(t *testing.T) {
 	db := api.MustInMemoryTestPool()
 	c, w := newTestContext(db)
 	// Get the initital features
-	c.Params = []gin.Param{gin.Param{Key: "keyId", Value: "123abc"}, gin.Param{Key: "till", Value: "2018-04-30"}}
-
+	c.Params = []gin.Param{gin.Param{Key: "keyId", Value: "123abc"}}
 	initFeatures := []openapi.LicensedFeature{}
 	openapi.LicensedFeaturesForKey(c)
 	if err := json.Unmarshal(w.Body.Bytes(), &initFeatures); err != nil {
@@ -26,7 +27,9 @@ func TestProlongLicensedFeaturesForKeyImpl(t *testing.T) {
 	fmt.Println(initFeatures)
 
 	c, w = newTestContext(db)
-	c.Params = []gin.Param{gin.Param{Key: "keyId", Value: "123abc"}, gin.Param{Key: "till", Value: "2018-04-30"}}
+	buf := new(bytes.Buffer)
+	c.Request, _ = http.NewRequest("POST", "/v1/prolongLicensedFeaturesForKey/123abc?till=2018-04-30", buf)
+	c.Params = []gin.Param{gin.Param{Key: "keyId", Value: "123abc"}}
 	openapi.ProlongLicensedFeaturesForKeyImpl(c)
 	if w.Code != 202 {
 		t.Error("Return code not OK", w.Code, w.Body)
@@ -34,7 +37,9 @@ func TestProlongLicensedFeaturesForKeyImpl(t *testing.T) {
 	}
 
 	c, w = newTestContext(db)
-	c.Params = []gin.Param{gin.Param{Key: "keyId", Value: "123abc"}, gin.Param{Key: "byMonths", Value: "10"}}
+	buf = new(bytes.Buffer)
+	c.Request, _ = http.NewRequest("POST", "/v1/prolongLicensedFeaturesForKey/123abc?byMonths=10", buf)
+	c.Params = []gin.Param{gin.Param{Key: "keyId", Value: "123abc"}}
 	openapi.ProlongLicensedFeaturesForKeyImpl(c)
 	if w.Code != 202 {
 		t.Error("Return code not OK", w.Code, w.Body)

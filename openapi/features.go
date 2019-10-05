@@ -112,11 +112,11 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 	db := c.MustGet("db").(*api.DbConn)
 	keyID := c.Param("keyId")
 	var byMonths int
-	tillDate, err := time.Parse("2006-01-02", c.Param("till"))
+	tillDate, err := time.Parse("2006-01-02", c.Query("till"))
 	if err != nil {
-		byMonths, err = strconv.Atoi(c.Param("byMonths"))
+		byMonths, err = strconv.Atoi(c.Query("byMonths"))
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 30, Message: "extension term must be set with either byMonths or till parameters"})
+			c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 30, Message: "extension term must be set with either byMonths or till parameters " + err.Error()})
 			return
 		}
 		if byMonths <= 0 {
