@@ -188,6 +188,31 @@ func TestIsKeyBelongsToOrg(t *testing.T) {
 	}
 }
 
+func TestCreateKey(t *testing.T) {
+	db := testDB
+	newKey := api.HWKey{Id: "ffffff", OrgId: 2, Comments: "Key ffffff"}
+	if err := db.CreateKey(newKey); err != nil {
+		t.Error(err)
+	}
+	newKey = api.HWKey{Id: "ffffff", OrgId: 2, Comments: "Key ffffff"}
+	if err := db.CreateKey(newKey); err == nil {
+		t.Error(err)
+	}
+	existingKey := api.HWKey{Id: "123abc", OrgId: 2, Comments: "Key ffffff"}
+	if err := db.CreateKey(existingKey); err == nil {
+		t.Error("Error was expected")
+	} else {
+		fmt.Println("2", err)
+	}
+	invalidOrg := api.HWKey{Id: "afffff", OrgId: 20, Comments: "Key afffff"}
+	if err := db.CreateKey(invalidOrg); err == nil {
+		t.Error("Error was expected")
+	} else {
+		fmt.Println("20", err)
+	}
+	// t.Error()
+}
+
 func TestMain(m *testing.M) {
 	testDB = api.MustInMemoryTestPool()
 	os.Exit(m.Run())

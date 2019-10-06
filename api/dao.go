@@ -6,6 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/pkg/errors"
 )
 
 type HWKey struct {
@@ -100,6 +101,24 @@ func (db *DbConn) Connx() (conn *sqlx.DB) {
 func (db *DbConn) Keys() (res []HWKey, err error) {
 	res = []HWKey{}
 	err = db.conn.Select(&res, "select id, assigned_org, comments from keys")
+	return
+}
+
+func (db *DbConn) CreateKey(key HWKey) (err error) {
+	tx, err := db.conn.Beginx()
+	defer tx.Rollback()
+	if err != nil {
+		return errors.Wrap(err, "unable to begin transaction in CreateKey:")
+	}
+	tmp := Organization{}
+	if err = tx.Get(&tmp, "select id, name, contact, comments from organizations where id=?", key.OrgId); err != nil {
+		return fmt.Errorf("invalid org ID %d", key.OrgId)
+	}
+	_, err = tx.Exec("insert into keys (id, assigned_org, comments) values (?, ?, ?)", key.Id, key.OrgId, key.Comments)
+	if err != nil {
+		return errors.Wrap(err, "when inserting new key ID:")
+	}
+	err = tx.Commit()
 	return
 }
 
