@@ -13,6 +13,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateKey - Creates a new key and assigns it to the specified client
+func CreateKey(c *gin.Context) {
+	CreateKeyImpl(c)
+}
+
 // HistoryLicenseFile - Get license file by client id and timestamp of issue
 func HistoryLicenseFile(c *gin.Context) {
 	HistoryLicenseFileImpl(c)

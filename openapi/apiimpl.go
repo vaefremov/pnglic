@@ -41,6 +41,33 @@ func ListKeysImpl(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, res)
 }
 
+// CreateKeyImpl - Creates a new key and assigns it to the specified client
+func CreateKeyImpl(c *gin.Context) {
+	// TODO: make sure clientID and keyID are OK: client must exist, key must be a new one
+	// fmt.Println(c.Request.Body
+	db := c.MustGet("db").(*api.DbConn)
+	newKey := HardwareKey{}
+	err := c.BindJSON(&newKey)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 3, Message: err.Error()})
+		return
+	}
+	if newKey.Id == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 3, Message: "Key ID must be specified"})
+		return
+	}
+	if newKey.CurrentOwnerId == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 3, Message: "Client ID must be specified"})
+		return
+	}
+	err = db.CreateKey(api.HWKey{Id: newKey.Id, OrgId: int(newKey.CurrentOwnerId), Comments: newKey.Kind + " " + newKey.Comments})
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 3, Message: err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, newKey)
+}
+
 // ListClientsImpl - Returns list of all organizations related to licensation
 func ListClientsImpl(c *gin.Context) {
 	res := []Organization{}

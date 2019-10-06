@@ -75,6 +75,13 @@ var routes = Routes{
 	},
 
 	{
+		"CreateKey",
+		http.MethodPut,
+		"/v1/keys",
+		CreateKey,
+	},
+
+	{
 		"HistoryLicenseFile",
 		http.MethodGet,
 		"/v1/historyLicenseFile/:clientId/:timeOfIssue",
