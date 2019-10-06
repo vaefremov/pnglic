@@ -44,6 +44,7 @@ func addDatabaseAndConf(db *api.DbConn, conf *server.Config) gin.HandlerFunc {
 func NewRouter(conf *server.Config) *gin.Engine {
 	db := api.MustNewPool(conf.DSN)
 	router := gin.Default()
+	router.LoadHTMLGlob("templates/*")
 	router.Use(addDatabaseAndConf(db, conf))
 	for _, route := range routes {
 		switch route.Method {
@@ -63,7 +64,11 @@ func NewRouter(conf *server.Config) *gin.Engine {
 
 // Index is the index handler.
 func Index(c *gin.Context) {
-	c.String(http.StatusOK, "Hello World!")
+	// c.String(http.StatusOK, "Hello World!")
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"title":   "Pangea Licenses",
+		"version": "0.0.1",
+	})
 }
 
 var routes = Routes{
