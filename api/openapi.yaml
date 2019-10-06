@@ -70,6 +70,30 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
       summary: Returns general list of keys
+    put:
+      operationId: createKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HardwareKey'
+      responses:
+        201:
+          description: the specified key was added to the set of keys belonging to
+            the client specified in the request body
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: The specified key exists already
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Creates a new key and assigns it to the specified client
   /history/{clientId}:
     get:
       operationId: listHistoryItems
@@ -293,7 +317,7 @@ paths:
       - description: Final expiration term of license features
         explode: true
         in: query
-        name: to
+        name: till
         required: false
         schema:
           format: date

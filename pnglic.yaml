@@ -68,6 +68,33 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+    put:
+      summary: Creates a new key and assigns it to the specified client
+      operationId: createKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HardwareKey"
+      responses:
+        '201':
+          description: the specified key has been added to the set of keys belonging to the client specified in the request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HardwareKey"
+        '400':
+          description: The specified key exists already
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"            
   /history/{clientId}:
     parameters:
     - name: clientId
