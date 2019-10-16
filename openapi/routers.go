@@ -11,6 +11,7 @@ package openapi
 
 import (
 	"net/http"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/vaefremov/pnglic/api"
@@ -44,7 +45,8 @@ func addDatabaseAndConf(db *api.DbConn, conf *server.Config) gin.HandlerFunc {
 func NewRouter(conf *server.Config) *gin.Engine {
 	db := api.MustNewPool(conf.DSN)
 	router := gin.Default()
-	router.LoadHTMLGlob("templates/*")
+	// router.LoadHTMLGlob("templates/*")
+	router.LoadHTMLGlob(filepath.Join(conf.StaticContent, "*"))
 	router.Use(addDatabaseAndConf(db, conf))
 	for _, route := range routes {
 		switch route.Method {

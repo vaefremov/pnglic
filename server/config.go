@@ -16,6 +16,7 @@ type Config struct {
 	LicfileEncoderV3     string `yaml:"encoderV3"`
 	SecretsHasp          string `yaml:"secretsHASP"`
 	SecretsGuardant      string `yaml:"secretsGuardant"`
+	StaticContent        string `yaml:"static"`
 }
 
 const (
@@ -24,6 +25,7 @@ const (
 	defaultLmGenPath          = "/Users/efremov/Projects/LIC/LmgenEmul/lmgen_hasp.sh"
 	defaultSecretPathHASP     = "/Users/efremov/Projects/LIC/lm/licenses/5A6DD26A.secret"
 	defaultSecretPathGuardant = "/Users/efremov/Projects/LIC/lm/licenses/5A6DD26A.secret"
+	defaultStaticContent      = "templates"
 )
 
 var port = flag.Int("p", -1, "Port to start server on")
@@ -31,6 +33,7 @@ var dsnPtr = flag.String("dsn", "", "Path to sqlite3 database")
 var lmgenPath = flag.String("lmgenHasp", "", "Path to legacy version of lmgen")
 var secretPathHASP = flag.String("sHasp", "", "Path to the HASP secret file")
 var secretPathGuardant = flag.String("sGuardant", "", "Path to the Guardant secret file")
+var staticFilesPath = flag.String("static", "", "Path to static files and templates")
 
 func NewConfig(configPath string) (conf *Config) {
 	conf = &Config{}
@@ -58,6 +61,7 @@ func (c Config) Report() {
 	fmt.Printf("  V3 encoder:            %s\n", c.LicfileEncoderV3)
 	fmt.Printf("  HASP secrets file:     %s\n", c.SecretsHasp)
 	fmt.Printf("  Guardant secrets file: %s\n", c.SecretsGuardant)
+	fmt.Printf("  Static files in:       %s\n", c.StaticContent)
 }
 
 func (c Config) Write(configPath string) (err error) {
@@ -92,6 +96,9 @@ func (c *Config) UpdateFromCLI() {
 	if *secretPathGuardant != "" {
 		c.SecretsGuardant = *secretPathGuardant
 	}
+	if *staticFilesPath != "" {
+		c.StaticContent = *staticFilesPath
+	}
 }
 
 // InsertDefaults inserts the built-in default values of config parameters
@@ -101,4 +108,5 @@ func (c *Config) InsertDefaults() {
 	c.LicfileEncoderLegacy = defaultLmGenPath
 	c.SecretsHasp = defaultSecretPathHASP
 	c.SecretsGuardant = defaultSecretPathGuardant
+	c.StaticContent = defaultStaticContent
 }
