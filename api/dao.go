@@ -230,6 +230,31 @@ func (db *DbConn) UpdateLicenseSet(keyId string, newLicensesSet []LicenseSetItem
 	return
 }
 
+// AddToHistory adds license file to the history track.Client name is deduced from the
+// ID
+func (db *DbConn) AddToHistory(orgID int, when time.Time, fileContent string) (err error) {
+	tx, err := db.conn.Beginx()
+	if err != nil {
+		return
+	}
+	// Get the client name from Id
+	var orgName struct {
+		Name string `db:"name"`
+	}
+	err = tx.Get(&orgName, "select name from organizations where id=?", orgID)
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	_, err = tx.Exec("insert into history (orgname, whenissued, xml) values (?, ?, ?)", orgName.Name, when.Format("2006-01-02 15:04:05"), fileContent)
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	err = tx.Commit()
+	return
+}
+
 func convertTimeInHistory(h historyItem) (res HistoryItem, err error) {
 	res = HistoryItem{ClientName: h.ClientName, ContentXml: h.ContentXml}
 	res.IssueTime, err = time.Parse("2006-01-02 15:04:05", h.IssueTime)

@@ -213,7 +213,38 @@ func TestCreateKey(t *testing.T) {
 	// t.Error()
 }
 
+func TestAddToHistory(t *testing.T) {
+	db := testDB
+	tIssue := time.Now()
+	err := db.AddToHistory(1, tIssue, mockLicenseFile)
+	if err != nil {
+		t.Error(err)
+	}
+	hist, err := db.HistoryForClientId(1)
+	if hist[len(hist)-1].ContentXml != mockLicenseFile {
+		t.Error("Wrong content of license file")
+	}
+}
+
 func TestMain(m *testing.M) {
 	testDB = api.MustInMemoryTestPool()
 	os.Exit(m.Run())
 }
+
+const mockLicenseFile = `<?xml version="1.0"?>
+<!DOCTYPE license_server>
+
+<license_server port="1234" id="4CDCEE4C">
+
+<package
+        id="CT_INTERFACE" 
+        version="1.00" 
+        start="26.04.2018" 
+        end="18.06.2018" 
+        count="1" 
+        dupgroup="DISP" 
+        code="CF4449610C33DAC3A9C737CD4D93FFE1" >
+    <feature id="MAPCENTER" />
+</package>
+</license_server>
+`
