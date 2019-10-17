@@ -151,7 +151,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /makeLicenseFile/{clientId}/{keyId}:
+  /newLicenseFile/{clientId}/{keyId}:
     parameters:
     - name: clientId
       in: path

@@ -79,8 +79,12 @@ paths:
               $ref: '#/components/schemas/HardwareKey'
       responses:
         201:
-          description: the specified key was added to the set of keys belonging to
-            the client specified in the request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HardwareKey'
+          description: the specified key has been added to the set of keys belonging
+            to the client specified in the request body
         400:
           content:
             application/json:
@@ -156,7 +160,7 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
       summary: Get license file by client id and timestamp of issue
-  /makeLicenseFile/{clientId}/{keyId}:
+  /newLicenseFile/{clientId}/{keyId}:
     get:
       operationId: makeLicenseFile
       parameters:

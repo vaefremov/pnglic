@@ -133,7 +133,7 @@ var routes = Routes{
 	{
 		"MakeLicenseFile",
 		http.MethodGet,
-		"/v1/makeLicenseFile/:clientId/:keyId",
+		"/v1/newLicenseFile/:clientId/:keyId",
 		MakeLicenseFile,
 	},
 
