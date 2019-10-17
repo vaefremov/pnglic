@@ -93,6 +93,7 @@ func MakeLicenseFileImpl(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
 		return
 	}
+	err = db.AddToHistory(clientID, time.Now(), resXML)
 	c.Data(http.StatusOK, "application/xml; charset=utf-8", []byte(resXML))
 }
 
