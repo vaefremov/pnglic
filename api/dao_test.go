@@ -255,6 +255,51 @@ func TestCreateOrUpdateFeature(t *testing.T) {
 	t.Error("New feature not found")
 }
 
+func TestSetPackageContent(t *testing.T) {
+	db := testDB
+	features := []string{"F1", "F2", "F3"}
+	pkg := "P1"
+	err := db.SetPackageContent(features, pkg)
+	if err != nil {
+		t.Error(err)
+	}
+	pkgContent, err := db.PackageContent(pkg)
+	if err != nil {
+		t.Error(err)
+	}
+	// featuresSet := map[string]bool{"F1": true, "F2": true}
+	featuresSet := map[string]bool{"F1": true, "F2": true, "F3": true}
+	for _, f := range pkgContent {
+		_, ok := featuresSet[f.Feature]
+		if !ok {
+			t.Error(f.Feature, "should not be found")
+		}
+	}
+	pkgContentSet := make(map[string]bool)
+	for _, f := range pkgContent {
+		pkgContentSet[f.Feature] = true
+	}
+	for _, f := range features {
+		_, ok := pkgContentSet[f]
+		if !ok {
+			t.Error(f, "was not found in the updated package")
+		}
+	}
+	features = []string{"F1", "F4", "F4"}
+	err = db.SetPackageContent(features, pkg)
+	if err != nil {
+		t.Error("err should be not nil when updating with repetitive features")
+	}
+	pkgContent, err = db.PackageContent(pkg)
+	for _, f := range pkgContent {
+		_, ok := featuresSet[f.Feature]
+		if !ok {
+			t.Error(f.Feature, "should not be found")
+		}
+	}
+
+}
+
 func TestMain(m *testing.M) {
 	testDB = api.MustInMemoryTestPool()
 	os.Exit(m.Run())

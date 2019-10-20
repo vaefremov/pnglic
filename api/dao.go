@@ -213,8 +213,28 @@ func (db *DbConn) CreateOrUpdateFeature(name string, description string, isPacka
 	return
 }
 
+// SetPackageContent removes everything from the specified package and inserts all the features
+// from the featureNames list
 func (db *DbConn) SetPackageContent(featureNames []string, packageName string) (err error) {
-	return nil
+	tx, err := db.conn.Beginx()
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	_, err = tx.Exec("delete from pkgcontent where pkg=?", packageName)
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	for _, f := range featureNames {
+		_, err = tx.Exec("insert into pkgcontent (pkg, feat) values (?, ?)", packageName, f)
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+	}
+	err = tx.Commit()
+	return
 }
 
 type PackageContentItem struct {
@@ -373,6 +393,7 @@ insert into organizations (name, contact, comments) values ('Org 2', 'Contact 1'
 insert into features (feat, ispackage, description) values ('F1', 0, 'Descr F1');
 insert into features (feat, ispackage, description) values ('F2', 0, 'Descr F2');
 insert into features (feat, ispackage, description) values ('F3', 0, 'Descr F3');
+insert into features (feat, ispackage, description) values ('F4', 0, 'Descr F4');
 insert into features (feat, ispackage, description) values ('P1', 1, 'Descr P1');
 
 insert into keys (id, assigned_org, comments) values ('123abc', 1, 'Comments key 1');
