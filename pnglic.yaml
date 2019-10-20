@@ -200,6 +200,52 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /feature/{featureName}:
+    parameters:
+      - name: featureName
+        in: path
+        required: true
+        description: Feature name to delete or update
+        schema:
+          type: string
+    put:
+      summary: Creates a new feature
+      operationId: createFeature
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Feature"
+      responses:
+        '201':
+          description: the specified has been created or an existing feature has been updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Feature"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"            
+    delete:
+      summary: Deletes a nfeature
+      operationId: deleteFeature
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Feature"
+      responses:
+        '204':
+          description: the specified feature has been deleted
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"            
   /packageContent/{packageName}:
     parameters:
       - name: packageName
@@ -232,6 +278,34 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+    post:
+      summary: Creates new package with the given content or modifies an existing package
+      operationId: updatePackage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: Feature updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  package:
+                    $ref: "#/components/schemas/Feature"
+                  features:
+                    $ref: "#/components/schemas/Features"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"            
   /licensedFeaturesForKey/{keyId}:
     parameters:
     - name: keyId

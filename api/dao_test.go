@@ -77,7 +77,7 @@ func TestFeatures(t *testing.T) {
 		t.Error(err)
 	}
 	fmt.Println(res)
-	expLen := 4
+	expLen := 5
 	if len(res) != expLen {
 		t.Errorf("Feature list length: expected: %d got: %d", expLen, len(res))
 	}
@@ -287,7 +287,7 @@ func TestSetPackageContent(t *testing.T) {
 	}
 	features = []string{"F1", "F4", "F4"}
 	err = db.SetPackageContent(features, pkg)
-	if err != nil {
+	if err == nil {
 		t.Error("err should be not nil when updating with repetitive features")
 	}
 	pkgContent, err = db.PackageContent(pkg)

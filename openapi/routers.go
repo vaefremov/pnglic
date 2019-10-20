@@ -82,10 +82,24 @@ var routes = Routes{
 	},
 
 	{
+		"CreateFeature",
+		http.MethodPut,
+		"/v1/feature/:featureName",
+		CreateFeature,
+	},
+
+	{
 		"CreateKey",
 		http.MethodPut,
 		"/v1/keys",
 		CreateKey,
+	},
+
+	{
+		"DeleteFeature",
+		http.MethodDelete,
+		"/v1/feature/:featureName",
+		DeleteFeature,
 	},
 
 	{
@@ -163,5 +177,12 @@ var routes = Routes{
 		http.MethodPost,
 		"/v1/licensedFeaturesForKey/:keyId",
 		UpdateLicensedFeaturesForKey,
+	},
+
+	{
+		"UpdatePackage",
+		http.MethodPost,
+		"/v1/packageContent/:packageName",
+		UpdatePackage,
 	},
 }

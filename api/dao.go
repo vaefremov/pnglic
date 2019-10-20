@@ -202,9 +202,25 @@ func (db *DbConn) CreateOrUpdateFeature(name string, description string, isPacka
 		_, err = tx.Exec("insert into features (feat, ispackage, description) values (?, ?, ?)", name, isPackage, description)
 		upd = false
 	} else {
-		_, err = tx.Exec("update features set ispackage=?, description=?", isPackage, description)
+		_, err = tx.Exec("update features set ispackage=?, description=? where feat=?", isPackage, description, name)
 		upd = true
 	}
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	err = tx.Commit()
+	return
+}
+
+// DeleteFeature deletes feature with the specified name
+func (db *DbConn) DeleteFeature(name string) (err error) {
+	tx, err := db.conn.Beginx()
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	_, err = tx.Exec("delete from features where feat=?", name)
 	if err != nil {
 		tx.Rollback()
 		return

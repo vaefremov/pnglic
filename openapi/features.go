@@ -148,3 +148,59 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 	}
 	c.JSON(http.StatusAccepted, "")
 }
+
+// CreateFeatureImpl implementes updating or creating new feature
+func CreateFeatureImpl(c *gin.Context) {
+	db := c.MustGet("db").(*api.DbConn)
+	featureName := c.Param("featureName")
+	f := Feature{}
+	err := c.BindJSON(&f)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 40, Message: err.Error()})
+		return
+	}
+	if featureName != f.Name {
+		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 40, Message: "inconsistent feature names"})
+		return
+	}
+	upd, err := db.CreateOrUpdateFeature(f.Name, f.Description, f.IsPackage)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 40, Message: err.Error()})
+		return
+	}
+	if upd {
+		c.JSON(http.StatusOK, f)
+	}
+	c.JSON(http.StatusCreated, f)
+}
+
+// DeleteFeatureImpl - Deletes a nfeature
+func DeleteFeatureImpl(c *gin.Context) {
+	db := c.MustGet("db").(*api.DbConn)
+	featureName := c.Param("featureName")
+	err := db.DeleteFeature(featureName)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 40, Message: err.Error()})
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+// UpdatePackageImpl - Creates new package with the given content or modifies an existing package
+func UpdatePackageImpl(c *gin.Context) {
+	db := c.MustGet("db").(*api.DbConn)
+	packageName := c.Param("packageName")
+	features := []string{}
+	err := c.BindJSON(&features)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 50, Message: err.Error()})
+		return
+	}
+	fmt.Println(features)
+	err = db.SetPackageContent(features, packageName)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 50, Message: err.Error()})
+		return
+	}
+	c.Status(http.StatusNoContent)
+}

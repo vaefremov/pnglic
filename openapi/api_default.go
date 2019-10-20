@@ -13,9 +13,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// CreateFeature - Creates a new feature
+func CreateFeature(c *gin.Context) {
+	CreateFeatureImpl(c)
+}
+
 // CreateKey - Creates a new key and assigns it to the specified client
 func CreateKey(c *gin.Context) {
 	CreateKeyImpl(c)
+}
+
+// DeleteFeature - Deletes a nfeature
+func DeleteFeature(c *gin.Context) {
+	DeleteFeatureImpl(c)
 }
 
 // HistoryLicenseFile - Get license file by client id and timestamp of issue
@@ -71,4 +81,9 @@ func ProlongLicensedFeaturesForKey(c *gin.Context) {
 // UpdateLicensedFeaturesForKey - Update license features for the given key ID, replace the previousely defined ones
 func UpdateLicensedFeaturesForKey(c *gin.Context) {
 	UpdateLicensedFeaturesForKeyImpl(c)
+}
+
+// UpdatePackage - Creates new package with the given content or modifies an existing package
+func UpdatePackage(c *gin.Context) {
+	UpdatePackageImpl(c)
 }
