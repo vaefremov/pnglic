@@ -181,10 +181,40 @@ func (db *DbConn) LicensesSetByKeyId(keyId string) (res []LicenseSetItem, err er
 	return
 }
 
+// Features returns the full list of features
 func (db *DbConn) Features() (res []Feature, err error) {
 	res = []Feature{}
 	err = db.conn.Select(&res, "select feat, ispackage, description from features")
 	return
+}
+
+// CreateOrUpdateFeature check is the feature with the given name exists, update feature in this case,
+// creates a new one otherwise
+func (db *DbConn) CreateOrUpdateFeature(name string, description string, isPackage bool) (upd bool, err error) {
+	tx, err := db.conn.Beginx()
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	f := Feature{}
+	err = tx.Get(&f, "select feat, ispackage, description from features where feat=?", name)
+	if err != nil {
+		_, err = tx.Exec("insert into features (feat, ispackage, description) values (?, ?, ?)", name, isPackage, description)
+		upd = false
+	} else {
+		_, err = tx.Exec("update features set ispackage=?, description=?", isPackage, description)
+		upd = true
+	}
+	if err != nil {
+		tx.Rollback()
+		return
+	}
+	err = tx.Commit()
+	return
+}
+
+func (db *DbConn) SetPackageContent(featureNames []string, packageName string) (err error) {
+	return nil
 }
 
 type PackageContentItem struct {

@@ -226,6 +226,35 @@ func TestAddToHistory(t *testing.T) {
 	}
 }
 
+func TestCreateOrUpdateFeature(t *testing.T) {
+	db := testDB
+	newFeature := "NEW1"
+	newIsPackage := false
+	newDescr := "some description"
+	upd, err := db.CreateOrUpdateFeature(newFeature, newDescr, newIsPackage)
+	if err != nil {
+		t.Error(err)
+	}
+	if upd == true {
+		t.Error("upd should be false")
+	}
+	upd, err = db.CreateOrUpdateFeature(newFeature, newDescr, newIsPackage)
+	if err != nil {
+		t.Error(err)
+	}
+	if upd != true {
+		t.Error("upd should be true")
+	}
+	features, err := db.Features()
+	// Check if the new feature is present
+	for _, f := range features {
+		if f.Feature == newFeature {
+			return
+		}
+	}
+	t.Error("New feature not found")
+}
+
 func TestMain(m *testing.M) {
 	testDB = api.MustInMemoryTestPool()
 	os.Exit(m.Run())
