@@ -1,6 +1,27 @@
 <!--Embed the header.html template at this location-->
-{{ template "header.html" .}}
+[[ template "header.html" .]]
 
-<h1>Licenses</h1>
+<section class="grid-container">
+
+    <h1>History</h1>
+
+
+    <table>
+        <tr>
+            <th>Client</th>
+            <th>Time of issue</th>
+        </tr>
+
+        [[ range .history ]]
+
+        <tr>
+            <td>[[ .ClientName ]] </td>
+            <td> <a href="/v1/historyLicenseFile/[[$.clientId]]/[[.TimeOfIssueStr]]"> [[ .IssueTime ]] </a> </td>
+        </tr>
+        
+        [[ end ]]
+    </table>
+
+</section>
 <!--Embed the footer.html template at this location-->
-{{ template "footer.html" .}}
+[[ template "footer.html" .]]

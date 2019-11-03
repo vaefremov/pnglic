@@ -1,9 +1,36 @@
 <!--index.html-->
 
 <!--Embed the header.html template at this location-->
-{{ template "header.html" .}}
+[[ template "header.html" .]]
 
+<section class="grid-container"></section>
 <h1>Clients</h1>
 
+<table>
+    <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Comments</th>
+    <th>Contacts</th>
+    </tr>
+
+    [[ range .clients ]]
+    <tr>
+        <td>[[ .Id ]]</td>
+        <td> <a href="licenses.html?clientId=[[.Id]]"> [[ .Name ]] </a></td>
+        <td>[[ .Comments ]]</td>
+        <td>[[ .Contacts ]]</td>
+    </tr>
+    [[ end ]]
+</table>
+
+<!-- <ul>
+  [[ range .clients ]]
+  <li>[[ .Id  ]] [[ .Name  ]]</li>
+  [[ end ]]
+</ul> -->
+
+</section>
+
 <!--Embed the footer.html template at this location-->
-{{ template "footer.html" .}}
+[[ template "footer.html" .]]

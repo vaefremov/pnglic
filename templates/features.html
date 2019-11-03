@@ -1,6 +1,31 @@
 <!--Embed the header.html template at this location-->
-{{ template "header.html" .}}
+[[ template "header.html" .]]
 
-<h1>Features & Packages</h1>
+<section class="grid-container">
+    <h1>Features & Packages</h1>
+
+    <table>
+        <tr>
+            <th>Package?</th>
+            <th>Name</th>
+            <th>Description</th>
+        </tr>
+
+        [[ range .features ]]
+        <tr>
+            [[ if .IsPackage ]]
+            <td><span class="warning badge">P</span></td>
+            [[ else ]]
+            <td><span class="primary badge">F</span></td>
+            [[ end ]]
+            <td>[[ .Feature ]]</td>
+            <td>[[ .Description ]]</td>
+        </tr>
+        [[ end ]]
+    </table>
+
+
+</section>
+
 <!--Embed the footer.html template at this location-->
-{{ template "footer.html" .}}
+[[ template "footer.html" .]]

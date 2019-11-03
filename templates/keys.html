@@ -1,7 +1,27 @@
-
 <!--Embed the header.html template at this location-->
-{{ template "header.html" .}}
+[[ template "header.html" .]]
 
-<h1>Keys</h1>
 <!--Embed the footer.html template at this location-->
-{{ template "footer.html" .}}
+
+<section class="grid-container">
+    <h1>Keys</h1>
+
+<table>
+    <tr>
+    <th>Key ID</th>
+    <th>Client ID</th>
+    <th>Comments</th>
+    </tr>
+
+    [[ range .keys ]]
+    <tr>
+        <td>[[ .Id ]]</td>
+        <td>[[ .OrgId ]]</td>
+        <td>[[ .Comments ]]</td>
+    </tr>
+    [[ end ]]
+</table>
+
+</section>
+
+[[ template "footer.html" .]]
