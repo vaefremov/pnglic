@@ -104,6 +104,13 @@ func (db *DbConn) Keys() (res []HWKey, err error) {
 	return
 }
 
+// KeysOfOrg selects keys that belongs to the organization with the given ID
+func (db *DbConn) KeysOfOrg(orgID int) (res []HWKey, err error) {
+	res = []HWKey{}
+	err = db.conn.Select(&res, "select id, assigned_org, comments from keys where assigned_org=?", orgID)
+	return
+}
+
 func (db *DbConn) CreateKey(key HWKey) (err error) {
 	tx, err := db.conn.Beginx()
 	defer tx.Rollback()
@@ -126,6 +133,14 @@ func (db *DbConn) Clients() (res []Organization, err error) {
 	res = []Organization{}
 	err = db.conn.Select(&res, "select id, name, contact, comments from organizations")
 	return
+}
+
+func (db *DbConn) ClientNameByID(clientID int) (name string, err error) {
+	tmp := struct {
+		Name string `db:"name"`
+	}{}
+	err = db.conn.Get(&tmp, "select name from organizations where id=?", clientID)
+	return tmp.Name, err
 }
 
 func (db *DbConn) HistoryForClientId(id int) (res []HistoryItem, err error) {
