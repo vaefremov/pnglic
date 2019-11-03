@@ -67,7 +67,6 @@ func NewRouter(conf *server.Config) *gin.Engine {
 
 // Index is the index handler.
 func Index(c *gin.Context) {
-	// c.String(http.StatusOK, "Hello World!")
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"title":   "Pangea Licenses",
 		"version": "0.0.1",
