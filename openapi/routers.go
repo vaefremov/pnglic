@@ -46,7 +46,7 @@ func addDatabaseAndConf(db *api.DbConn, conf *server.Config) gin.HandlerFunc {
 func NewRouter(conf *server.Config) *gin.Engine {
 	db := api.MustNewPool(conf.DSN)
 	router := gin.Default()
-	// router.LoadHTMLGlob("templates/*")
+	router.Delims("[[", "]]") // Template delimiters changed to be able to use Vue.js in template-generated pages
 	router.Static("/s", filepath.Clean(filepath.Join(conf.StaticContent, "../static")))
 	router.LoadHTMLGlob(filepath.Join(conf.StaticContent, "*"))
 	router.Use(addDatabaseAndConf(db, conf))
