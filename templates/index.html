@@ -3,7 +3,7 @@
 <!--Embed the header.html template at this location-->
 [[ template "header.html" .]]
 
-<section class="grid-container"></section>
+<section class="grid-container">
 <h1>Clients</h1>
 
 <table>
@@ -12,6 +12,7 @@
     <th>Name</th>
     <th>Comments</th>
     <th>Contacts</th>
+    <th>Keys</th>
     </tr>
 
     [[ range .clients ]]
@@ -20,6 +21,11 @@
         <td> <a href="licenses.html?clientId=[[.Id]]"> [[ .Name ]] </a></td>
         <td>[[ .Comments ]]</td>
         <td>[[ .Contacts ]]</td>
+        <td>
+          [[ range .Keys ]]
+            <a href="keyfeatures.html?keyId=[[.]]"><span>[[.]]</span></a>
+          [[ end ]]
+        </td>
     </tr>
     [[ end ]]
 </table>
