@@ -21,6 +21,8 @@ func Index(c *gin.Context) {
 	switch c.Param("c") {
 	case "/keys.html":
 		Keys(c, &params)
+	case "/keyfeatures.html":
+		KeyFeatures(c, &params)
 	case "/licenses.html":
 		History(c, &params)
 	case "/features.html":
@@ -30,26 +32,72 @@ func Index(c *gin.Context) {
 	}
 }
 
+type ClientOut struct {
+	api.Organization
+	Keys []string
+}
+
 // Clients output list of clients
 func Clients(c *gin.Context, params *gin.H) {
 	db := c.MustGet("db").(*api.DbConn)
 	clients, err := db.Clients()
-	(*params)["clients"] = clients
+	clientsOut := []ClientOut{}
+	for _, cl := range clients {
+		keys := []string{} // ID of keys belonging to an organization
+		if tmp, err := db.KeysOfOrg(cl.Id); err == nil {
+			for _, k := range tmp {
+				keys = append(keys, k.Id)
+			}
+		} else {
+			fmt.Println(cl.Id, err)
+		}
+		curClient := ClientOut{Organization: cl, Keys: keys}
+		clientsOut = append(clientsOut, curClient)
+	}
+	(*params)["clients"] = clientsOut
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 	}
 	c.HTML(http.StatusOK, "index.html", params)
 }
 
+type KeyOut struct {
+	api.HWKey
+	ClientName string
+}
+
 // Keys output the Keys page
 func Keys(c *gin.Context, params *gin.H) {
 	db := c.MustGet("db").(*api.DbConn)
 	keys, err := db.Keys()
-	(*params)["keys"] = keys
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
+	keysOut := []KeyOut{}
+	for _, k := range keys {
+		if orgName, err := db.ClientNameByID(k.OrgId); err == nil {
+			keysOut = append(keysOut, KeyOut{HWKey: k, ClientName: orgName})
+		} else {
+			fmt.Println(k.OrgId, err)
+		}
+	}
+	(*params)["keys"] = keysOut
 	c.HTML(http.StatusOK, "keys.html", params)
+}
+
+// Keys output the Keys page
+func KeyFeatures(c *gin.Context, params *gin.H) {
+	db := c.MustGet("db").(*api.DbConn)
+	keyID := c.Query("keyId")
+	features, err := db.LicensesSetByKeyId(keyID)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	(*params)["features"] = features
+	(*params)["keyId"] = keyID
+	c.HTML(http.StatusOK, "keyfeatures.html", params)
 }
 
 type HistoryItemView struct {
@@ -80,6 +128,7 @@ func History(c *gin.Context, params *gin.H) {
 	(*params)["clientId"] = clientID
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 	c.HTML(http.StatusOK, "licenses.html", params)
 }
@@ -89,6 +138,7 @@ func Features(c *gin.Context, params *gin.H) {
 	features, err := db.Features()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 	sort.Slice(features, func(i, j int) bool {
 		if features[i].IsPackage != features[j].IsPackage {
