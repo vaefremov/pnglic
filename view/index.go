@@ -16,6 +16,10 @@ func Index(c *gin.Context) {
 	switch c.Param("c") {
 	case "/keys.html":
 		c.HTML(http.StatusOK, "keys.html", params)
+	case "/licenses.html":
+		c.HTML(http.StatusOK, "licenses.html", params)
+	case "/features.html":
+		c.HTML(http.StatusOK, "features.html", params)
 	default:
 		c.HTML(http.StatusOK, "index.html", params)
 	}
