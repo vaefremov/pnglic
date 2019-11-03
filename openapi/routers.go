@@ -16,6 +16,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/vaefremov/pnglic/api"
 	"github.com/vaefremov/pnglic/server"
+	"github.com/vaefremov/pnglic/view"
 )
 
 // Route is the information for every URI.
@@ -65,20 +66,12 @@ func NewRouter(conf *server.Config) *gin.Engine {
 	return router
 }
 
-// Index is the index handler.
-func Index(c *gin.Context) {
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"title":   "Pangea Licenses",
-		"version": "0.0.1",
-	})
-}
-
 var routes = Routes{
 	{
 		"Index",
 		http.MethodGet,
-		"/v1/",
-		Index,
+		"/v1/view/*c",
+		view.Index,
 	},
 
 	{
