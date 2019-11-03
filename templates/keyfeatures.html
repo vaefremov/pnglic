@@ -1,0 +1,28 @@
+<!--Embed the header.html template at this location-->
+[[ template "header.html" .]]
+
+<section class="grid-container">
+    <h1>Features licensed to [[.keyId]]</h1>
+
+    <ul>
+        [[ range .features ]]
+        <li>[[. ]]</li>
+        [[ end ]]
+    </ul>
+
+    <button class="button">Extend to</button>
+    <input type="text" class="span2" value="02-12-2020" id="dp1">
+</section>
+
+<script src="/s/js/foundation-datepicker.js"></script>
+<script src="/s/js/locales/foundation-datepicker.vi.js"></script>
+
+<script>
+    $('#dp1').fdatepicker({
+        format: 'mm-dd-yyyy',
+        disableDblClickSelection: true
+    });  
+</script>
+
+<!--Embed the footer.html template at this location-->
+[[ template "footer.html" .]]
