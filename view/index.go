@@ -16,7 +16,7 @@ func Index(c *gin.Context) {
 	// Dispatch to the right page template, index.html is the default
 	params := gin.H{
 		"title":   "Pangea Licenses",
-		"version": "0.0.1",
+		"version": "0.1.4",
 	}
 	switch c.Param("c") {
 	case "/keys.html":
@@ -27,6 +27,12 @@ func Index(c *gin.Context) {
 		History(c, &params)
 	case "/features.html":
 		Features(c, &params)
+	case "/templates.html":
+		Templates(c, &params)
+	case "/packagescontent.html":
+		PackagesContent(c, &params)
+	case "/singlepackage.html":
+		SinglePackageContent(c, &params)
 	default:
 		Clients(c, &params)
 	}
@@ -69,6 +75,10 @@ type KeyOut struct {
 // Keys output the Keys page
 func Keys(c *gin.Context, params *gin.H) {
 	db := c.MustGet("db").(*api.DbConn)
+	selectedOrgID := -1
+	if tmp, err := strconv.Atoi(c.Query("orgId")); err == nil {
+		selectedOrgID = tmp
+	}
 	keys, err := db.Keys()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -77,7 +87,9 @@ func Keys(c *gin.Context, params *gin.H) {
 	keysOut := []KeyOut{}
 	for _, k := range keys {
 		if orgName, err := db.ClientNameByID(k.OrgId); err == nil {
-			keysOut = append(keysOut, KeyOut{HWKey: k, ClientName: orgName})
+			if selectedOrgID == -1 || selectedOrgID == k.OrgId {
+				keysOut = append(keysOut, KeyOut{HWKey: k, ClientName: orgName})
+			}
 		} else {
 			fmt.Println(k.OrgId, err)
 		}
@@ -176,4 +188,91 @@ func Features(c *gin.Context, params *gin.H) {
 	})
 	(*params)["features"] = features
 	c.HTML(http.StatusOK, "features.html", params)
+}
+
+func Templates(c *gin.Context, params *gin.H) {
+	// db := c.MustGet("db").(*api.DbConn)
+	c.HTML(http.StatusOK, "templates.html", params)
+}
+
+func PackagesContent(c *gin.Context, params *gin.H) {
+	db := c.MustGet("db").(*api.DbConn)
+	features, err := db.Features()
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	featuresOut := []struct {
+		Name      string
+		IsPackage bool
+		Features  []string
+	}{}
+	for _, f := range features {
+		packageContentStr := []string{}
+		if f.IsPackage {
+			if tmpPackageContent, err := db.PackageContent(f.Feature); err == nil {
+				for _, ff := range tmpPackageContent {
+					packageContentStr = append(packageContentStr, ff.Feature)
+				}
+			}
+			tmp := struct {
+				Name      string
+				IsPackage bool
+				Features  []string
+			}{
+				Name:      f.Feature,
+				IsPackage: f.IsPackage,
+				Features:  packageContentStr,
+			}
+			featuresOut = append(featuresOut, tmp)
+		}
+	}
+	(*params)["features"] = featuresOut
+	c.HTML(http.StatusOK, "packagescontent.html", params)
+
+}
+
+func SinglePackageContent(c *gin.Context, params *gin.H) {
+	db := c.MustGet("db").(*api.DbConn)
+	packageName := c.Query("package")
+	if packageName == "" {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	if isPackage, err := db.IsPackage(packageName); err != nil || !isPackage {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+	tmpPackageContent, err := db.PackageContent(packageName)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}
+	tmpFeatures, err := db.Features()
+	mapFeatures := map[string]api.Feature{}
+	for _, f := range tmpFeatures {
+		if f.Description == "" {
+			f.Description = "No description so far"
+		}
+		mapFeatures[f.Feature] = f
+	}
+	features := []struct {
+		Name        string
+		Description string
+	}{}
+	for _, f := range tmpPackageContent {
+		features = append(features, struct {
+			Name        string
+			Description string
+		}{
+			Name:        f.Feature,
+			Description: mapFeatures[f.Feature].Description,
+		})
+	}
+	(*params)["package"] = packageName
+	(*params)["packageDescription"] = mapFeatures[packageName].Description
+
+	(*params)["features"] = features
+	(*params)["total"] = len(features)
+
+	c.HTML(http.StatusOK, "singlepackage.html", params)
 }

@@ -1,0 +1,28 @@
+<!--Embed the header.html template at this location-->
+[[ template "header.html" .]]
+
+<section class="grid-container">
+    <h1>Package [[ .package ]]</h1>
+    <div class="primary callout">
+        <p>
+            [[ .packageDescription ]]. 
+        </p>
+        <p>Total number of features: [[ .total ]].</p>
+    </div>
+    <table>
+            [[ range .features]]
+            <tr>
+            <td>
+                [[ .Name ]]
+            </td>
+            <td>
+                [[ .Description ]]
+            </td>
+        </tr>
+        [[ end ]]
+    </table>
+
+</section>
+
+<!--Embed the footer.html template at this location-->
+[[ template "footer.html" .]]

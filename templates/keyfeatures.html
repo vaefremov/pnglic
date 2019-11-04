@@ -24,10 +24,11 @@
                 <td>
                         [[ if .IsPackage ]]
                         <span class="warning badge">P</span>
+                        <a href="singlepackage.html?package=[[.Feature]]">[[ .Feature ]]</a>
                         [[ else ]]
                         <span class="primary badge">F</span>
-                        [[ end ]]
                         [[ .Feature ]]
+                        [[ end ]]
                 </td>
                 <td>[[ .Version ]]</td>
                 <td>[[ .Start.Format "2006-01-02" ]] </td>

@@ -1,0 +1,37 @@
+<!--Embed the header.html template at this location-->
+[[ template "header.html" .]]
+
+<section class="grid-container">
+    <h1>Features & Packages</h1>
+
+    <table>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Package content</th>
+        </tr>
+
+        [[ range .features ]]
+        <tr>
+            [[ if .IsPackage ]]
+            <td><span class="warning badge">P</span></td>
+            [[ else ]]
+            <td><span class="primary badge">F</span></td>
+            [[ end ]]
+            <td>
+                [[ if .IsPackage ]]
+                  <a href="singlepackage.html?package=[[.Name]]">[[ .Name ]]</a>
+                [[ else ]]
+                    [[ .Name ]]
+                [[ end ]]
+            </td>
+            <td>[[ .Features ]]</td>
+        </tr>
+        [[ end ]]
+    </table>
+
+
+</section>
+
+<!--Embed the footer.html template at this location-->
+[[ template "footer.html" .]]
