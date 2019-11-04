@@ -116,11 +116,11 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 	if err != nil {
 		byMonths, err = strconv.Atoi(c.Query("byMonths"))
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 30, Message: "extension term must be set with either byMonths or till parameters " + err.Error()})
+			c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 30, Message: "extension term must be set with either byMonths or till parameters " + err.Error()})
 			return
 		}
 		if byMonths <= 0 {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 30, Message: "invalid extension term (<= 0)"})
+			c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 30, Message: "invalid extension term (<= 0)"})
 			return
 		}
 	}

@@ -86,17 +86,45 @@ func Keys(c *gin.Context, params *gin.H) {
 	c.HTML(http.StatusOK, "keys.html", params)
 }
 
-// Keys output the Keys page
+type FeatureOut struct {
+	api.LicenseSetItem
+	IsPackage      bool
+	InsideFeatures []string
+}
+
+// KeyFeatures output page that implements use cases related to extending term of
+// use of licenses
 func KeyFeatures(c *gin.Context, params *gin.H) {
 	db := c.MustGet("db").(*api.DbConn)
 	keyID := c.Query("keyId")
+
 	features, err := db.LicensesSetByKeyId(keyID)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	(*params)["features"] = features
+	featuresOut := []FeatureOut{}
+	for _, f := range features {
+		isPackage, _ := db.IsPackage(f.Feature)
+		packageContentStr := []string{}
+		if isPackage {
+			if tmpPackageContent, err := db.PackageContent(f.Feature); err == nil {
+				for _, ff := range tmpPackageContent {
+					packageContentStr = append(packageContentStr, ff.Feature)
+				}
+			}
+		}
+		tmp := FeatureOut{LicenseSetItem: f,
+			IsPackage:      isPackage,
+			InsideFeatures: packageContentStr,
+		}
+		featuresOut = append(featuresOut, tmp)
+	}
+	client, err := db.KeyOfWhichOrg(keyID)
+	(*params)["features"] = featuresOut
 	(*params)["keyId"] = keyID
+	(*params)["client"] = client
+	(*params)["proposedExtTerm"] = time.Now().AddDate(0, 1, 0).Format("2006-01-02")
 	c.HTML(http.StatusOK, "keyfeatures.html", params)
 }
 

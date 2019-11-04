@@ -2,24 +2,86 @@
 [[ template "header.html" .]]
 
 <section class="grid-container">
-    <h1>Features licensed to [[.keyId]]</h1>
+    <h1>Features licensed to key [[.keyId]]</h1>
+    <div class="callout primary">
+        <p>Licensed organization: [[.client.Name]] (ID: [[.client.Id]])</p>
+    </div>
 
-    <ul>
-        [[ range .features ]]
-        <li>[[. ]]</li>
-        [[ end ]]
-    </ul>
+    <table>
+            <thead>
+              <tr>
+                <th width="200">Feature/Package</th>
+                <th width="50">Ver</th>
+                <th width="150">Start</th>
+                <th width="150">End</th>
+                <th width="50">Q-ty</th>
+                <th width="150">Dup</th>
+              </tr>
+            </thead>
+            <tbody>
+                [[ range .features ]]
+              <tr>
+                <td>
+                        [[ if .IsPackage ]]
+                        <span class="warning badge">P</span>
+                        [[ else ]]
+                        <span class="primary badge">F</span>
+                        [[ end ]]
+                        [[ .Feature ]]
+                </td>
+                <td>[[ .Version ]]</td>
+                <td>[[ .Start.Format "2006-01-02" ]] </td>
+                <td>[[ .End.Format "2006-01-02" ]]</td>
+                <td>[[.Count]]</td>
+                <td>[[.DupGroup]]</td>
+              </tr>
+              [[ end ]]
+            </tbody>
+    </table>
 
-    <button class="button">Extend to</button>
-    <input type="text" class="span2" value="02-12-2020" id="dp1">
+    <div class="grid-x grid-margin-x">
+        <button id="extendTo" class="button cell medium-6 large-6">Extend to</button>
+        <input type="text" class="cell medium-6 large-6" value="[[.proposedExtTerm]]" id="dp1">
+    </div>
+    <div class="grid-x grid-margin-x">
+        <button id="extendBy" class="button cell medium-6 large-6">Extend by</button>
+        <label>Extension term (from now):
+            <select id="extendBySelect" class="cell medium-6 large-6">
+                <option value="1">1 month</option>
+                <option value="2">2 months</option>
+                <option value="3">3 months</option>
+                <option value="6">6 months</option>
+                <option value="12">1 year</option>
+            </select>
+        </label>
+    </div>
+    <a class="expanded success button" href="/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]"
+        download="license_[[.keyId]]_for_[[.client.Name]].xml">Make new file and download to: license_[[.keyId]]_for_[[.client.Name]].xml</a>
 </section>
 
 <script src="/s/js/foundation-datepicker.js"></script>
 <script src="/s/js/locales/foundation-datepicker.vi.js"></script>
 
 <script>
+    $("#extendBy").click(function () {
+        $.post("/v1/prolongLicensedFeaturesForKey/[[.keyId]]?byMonths=" + $("#extendBySelect").val(),
+            function (data, status) {
+                // alert("From post: " + data + " " + status);
+                location.reload(true)
+            });
+        ;
+    });
+
+    $("#extendTo").click(function () {
+        $.post("/v1/prolongLicensedFeaturesForKey/[[.keyId]]?till=" + $("#dp1").val(),
+            function (data, status) {
+                // alert("From post: " + data + " " + status);
+                location.reload(true)
+            });
+    });
+
     $('#dp1').fdatepicker({
-        format: 'mm-dd-yyyy',
+        format: 'yyyy-mm-dd',
         disableDblClickSelection: true
     });  
 </script>
