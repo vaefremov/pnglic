@@ -66,7 +66,18 @@ func NewRouter(conf *server.Config) *gin.Engine {
 	return router
 }
 
+func DefaultEntryPoint(c *gin.Context) {
+	c.Redirect(http.StatusPermanentRedirect, "/v1/view")
+}
+
 var routes = Routes{
+	{
+		"DefaltIndex",
+		http.MethodGet,
+		"/",
+		DefaultEntryPoint,
+	},
+
 	{
 		"Index",
 		http.MethodGet,
