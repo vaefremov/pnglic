@@ -159,6 +159,13 @@ func (db *DbConn) HistoryForClientId(id int) (res []HistoryItem, err error) {
 	return
 }
 
+// KeyOfWhichOrg returns organization the key belongs to
+func (db *DbConn) KeyOfWhichOrg(keyID string) (res Organization, err error) {
+	res = Organization{}
+	err = db.conn.Get(&res, "select o.id, o.name, o.contact, o.comments from organizations o, keys k where o.id = k.assigned_org and k.id=?", keyID)
+	return
+}
+
 // IsKeyBelongsToOrg checks if the given key ID can be found in keys table and that
 // the key number is registered with the Organization identified by orgID
 func (db *DbConn) IsKeyBelongsToOrg(keyID string, orgID int) (res bool, err error) {
