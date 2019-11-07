@@ -1,9 +1,4 @@
-<!--Embed the header.html template at this location-->
-[[ template "header.html" .]]
-
-<!--Embed the footer.html template at this location-->
-
-<section class="grid-container">
+<div class="grid-container">
     <h1>Keys</h1>
 
 <table>
@@ -15,13 +10,11 @@
 
     [[ range .keys ]]
     <tr>
-        <td><a href="keyfeatures.html?keyId=[[.Id]]">[[ .Id ]]</a></td>
+        <td><a onclick="loadPage('keyfeatures.html?keyId=[[.Id]]')"   href="#0">[[ .Id ]]</a></td>
         <td>[[ .ClientName ]]</td>
         <td>[[ .Comments ]]</td>
     </tr>
     [[ end ]]
 </table>
 
-</section>
-
-[[ template "footer.html" .]]
+</div>

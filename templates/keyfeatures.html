@@ -1,7 +1,4 @@
-<!--Embed the header.html template at this location-->
-[[ template "header.html" .]]
-
-<section class="grid-container">
+<div class="grid-container">
     <h1>Features licensed to key [[.keyId]]</h1>
     <div class="callout primary">
         <p>Licensed organization: [[.client.Name]] (ID: [[.client.Id]])</p>
@@ -41,11 +38,17 @@
     </table>
 
     <div class="grid-x grid-margin-x">
-        <button id="extendTo" class="button cell medium-6 large-6">Extend to</button>
+        <button id="extendTo"  onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?till=' + $('#dp1').val(),
+        function (data, status) {
+            loadPage('keyfeatures.html?keyId=[[.keyId]]');
+        })"  class="button cell medium-6 large-6">Extend to</button>
         <input type="text" class="cell medium-6 large-6" value="[[.proposedExtTerm]]" id="dp1">
     </div>
     <div class="grid-x grid-margin-x">
-        <button id="extendBy" class="button cell medium-6 large-6">Extend by</button>
+        <button id="extendBy" onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?byMonths=' + $('#extendBySelect').val(),
+                function (data, status) {
+                    loadPage('keyfeatures.html?keyId=[[.keyId]]');
+                })"  class="button cell medium-6 large-6">Extend by</button>
         <label>Extension term (from now):
             <select id="extendBySelect" class="cell medium-6 large-6">
                 <option value="1">1 month</option>
@@ -58,34 +61,22 @@
     </div>
     <a class="expanded success button" href="/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]"
         download="license_[[.keyId]]_for_[[.client.Name]].xml">Make new file and download to: license_[[.keyId]]_for_[[.client.Name]].xml</a>
-</section>
-
-<script src="/s/js/foundation-datepicker.js"></script>
-<script src="/s/js/locales/foundation-datepicker.vi.js"></script>
+</div>
 
 <script>
     $("#extendBy").click(function () {
         $.post("/v1/prolongLicensedFeaturesForKey/[[.keyId]]?byMonths=" + $("#extendBySelect").val(),
             function (data, status) {
-                // alert("From post: " + data + " " + status);
+                alert("From post: " + data + " " + status);
                 location.reload(true)
             });
         ;
     });
 
     $("#extendTo").click(function () {
-        $.post("/v1/prolongLicensedFeaturesForKey/[[.keyId]]?till=" + $("#dp1").val(),
+        $.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?till=' + $('#dp1').val(),
             function (data, status) {
-                // alert("From post: " + data + " " + status);
-                location.reload(true)
+                loadPage('keyfeatures.html?keyId=[[.keyId]]');
             });
     });
-
-    $('#dp1').fdatepicker({
-        format: 'yyyy-mm-dd',
-        disableDblClickSelection: true
-    });  
 </script>
-
-<!--Embed the footer.html template at this location-->
-[[ template "footer.html" .]]

@@ -3,39 +3,13 @@
 <!--Embed the header.html template at this location-->
 [[ template "header.html" .]]
 
-<section class="grid-container">
-<h1>Clients</h1>
-
-<table>
-    <tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Comments</th>
-    <th>Contacts</th>
-    <th>Keys</th>
-    </tr>
-
-    [[ range .clients ]]
-    <tr>
-        <td>[[ .Id ]]</td>
-        <td> <a href="licenses.html?clientId=[[.Id]]"> [[ .Name ]] </a></td>
-        <td>[[ .Comments ]]</td>
-        <td>[[ .Contacts ]]</td>
-        <td>
-          <!-- [[ range .Keys ]]
-            <a href="keyfeatures.html?keyId=[[.]]"><span>[[.]]</span></a>
-          [[ end ]] -->
-          <a href="keys.html?orgId=[[.Id]]">--></a>
-        </td>
-    </tr>
-    [[ end ]]
-</table>
-
-<!-- <ul>
-  [[ range .clients ]]
-  <li>[[ .Id  ]] [[ .Name  ]]</li>
-  [[ end ]]
-</ul> -->
+<section id="main" class="grid-container">
+<div class="grid-container">
+  <h1>
+    Pangea License Management system
+  </h1>
+  <p>Выберите действие из меню!</p>
+</div>
 
 </section>
 

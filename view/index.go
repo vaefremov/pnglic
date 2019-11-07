@@ -33,9 +33,15 @@ func Index(c *gin.Context) {
 		PackagesContent(c, &params)
 	case "/singlepackage.html":
 		SinglePackageContent(c, &params)
-	default:
+	case "/clients.html":
 		Clients(c, &params)
+	default:
+		StartPage(c, &params)
 	}
+}
+
+func StartPage(c *gin.Context, params *gin.H) {
+	c.HTML(http.StatusOK, "index.html", params)
 }
 
 type ClientOut struct {
@@ -64,7 +70,7 @@ func Clients(c *gin.Context, params *gin.H) {
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 	}
-	c.HTML(http.StatusOK, "index.html", params)
+	c.HTML(http.StatusOK, "clients.html", params)
 }
 
 type KeyOut struct {
