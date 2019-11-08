@@ -17,7 +17,7 @@
             [[ end ]]
             <td>
                 [[ if .IsPackage ]]
-                  <a href="singlepackage.html?package=[[.Name]]">[[ .Name ]]</a>
+                  <a onclick="loadPage('singlepackage.html?package=[[.Name]]')" href="#0">[[ .Name ]]</a>
                 [[ else ]]
                     [[ .Name ]]
                 [[ end ]]
