@@ -62,7 +62,10 @@ func NewRouter(conf *server.Config) *gin.Engine {
 			router.DELETE(route.Pattern, route.HandlerFunc)
 		}
 	}
-
+	acc := gin.Accounts{conf.AdminName: conf.AdminPass}
+	// Note: Basic authentication will be replaced in future with something more secure
+	protected := router.Group("/v1/view/", gin.BasicAuth(acc))
+	protected.GET("/*c", view.Index)
 	return router
 }
 
@@ -76,13 +79,6 @@ var routes = Routes{
 		http.MethodGet,
 		"/",
 		DefaultEntryPoint,
-	},
-
-	{
-		"Index",
-		http.MethodGet,
-		"/v1/view/*c",
-		view.Index,
 	},
 
 	{

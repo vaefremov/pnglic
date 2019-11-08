@@ -9,6 +9,11 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type UserPass struct {
+	User string
+	Pass string
+}
+
 type Config struct {
 	Port                 int    `yaml:"port"`
 	DSN                  string `yaml:"dsn"`
@@ -17,6 +22,8 @@ type Config struct {
 	SecretsHasp          string `yaml:"secretsHASP"`
 	SecretsGuardant      string `yaml:"secretsGuardant"`
 	StaticContent        string `yaml:"static"`
+	AdminName            string `yaml:"adminName"`
+	AdminPass            string `yaml:"adminPass"`
 }
 
 const (
@@ -26,6 +33,8 @@ const (
 	defaultSecretPathHASP     = "/Users/efremov/Projects/LIC/lm/licenses/5A6DD26A.secret"
 	defaultSecretPathGuardant = "/Users/efremov/Projects/LIC/lm/licenses/5A6DD26A.secret"
 	defaultStaticContent      = "templates"
+	defaultAdminName          = "admin"
+	defaultAdminPass          = "admin"
 )
 
 var port = flag.Int("p", -1, "Port to start server on")
@@ -34,6 +43,8 @@ var lmgenPath = flag.String("lmgenHasp", "", "Path to legacy version of lmgen")
 var secretPathHASP = flag.String("sHasp", "", "Path to the HASP secret file")
 var secretPathGuardant = flag.String("sGuardant", "", "Path to the Guardant secret file")
 var staticFilesPath = flag.String("static", "", "Path to static files and templates")
+var adminName = flag.String("admin", "", "Name of admin user")
+var adminPass = flag.String("password", "", "Password of admin user")
 
 func NewConfig(configPath string) (conf *Config) {
 	conf = &Config{}
@@ -62,6 +73,7 @@ func (c Config) Report() {
 	fmt.Printf("  HASP secrets file:     %s\n", c.SecretsHasp)
 	fmt.Printf("  Guardant secrets file: %s\n", c.SecretsGuardant)
 	fmt.Printf("  Static files in:       %s\n", c.StaticContent)
+	fmt.Printf("  Admin name is:         %s\n", c.AdminName)
 }
 
 func (c Config) Write(configPath string) (err error) {
@@ -99,6 +111,12 @@ func (c *Config) UpdateFromCLI() {
 	if *staticFilesPath != "" {
 		c.StaticContent = *staticFilesPath
 	}
+	if *adminName != "" {
+		c.AdminName = *adminName
+	}
+	if *adminPass != "" {
+		c.AdminPass = *adminPass
+	}
 }
 
 // InsertDefaults inserts the built-in default values of config parameters
@@ -109,4 +127,6 @@ func (c *Config) InsertDefaults() {
 	c.SecretsHasp = defaultSecretPathHASP
 	c.SecretsGuardant = defaultSecretPathGuardant
 	c.StaticContent = defaultStaticContent
+	c.AdminName = defaultAdminName
+	c.AdminPass = defaultAdminPass
 }
