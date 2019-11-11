@@ -1,6 +1,9 @@
 <!--menu.html-->
 
 <script>
+  var loadPageHistory = []
+  const MAX_HISTORY_LEN=10
+
   var loadPage = function (page) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
@@ -10,6 +13,12 @@
         if (page.split('?')[0] === 'keyfeatures.html') {
           reloadDatePicker();
         }
+        if (loadPageHistory[loadPageHistory.length-1] != page)
+          loadPageHistory.push(page);
+        if (loadPageHistory.length > MAX_HISTORY_LEN) {
+          loadPageHistory.shift()
+        }
+        console.debug(loadPageHistory)
       }
     };
     xhttp.open("GET", page, true);
@@ -22,6 +31,15 @@
       disableDblClickSelection: true
     });
 
+  }
+
+  var loadPreviousPage = function() {
+    if (loadPageHistory.length > 1) {
+      loadPageHistory.pop() // pop the current page
+      var prevPage = loadPageHistory.pop()
+      loadPage(prevPage);
+    }
+    console.debug(loadPageHistory)
   }
 
 </script>
@@ -44,8 +62,9 @@
   </div>
   <div class="top-bar-right">
     <ul class="menu">
-      <li><input type="search" placeholder="Search"></li>
-      <li><button type="button" class="button">Search</button></li>
+      <!-- <li><input type="search" placeholder="Search"></li>
+      <li><button type="button" class="button">Search</button></li> -->
+      <li><button type="button" class="button" onclick="loadPreviousPage()">Back</button></li>
     </ul>
   </div>
 </nav>
