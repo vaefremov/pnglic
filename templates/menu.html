@@ -18,7 +18,6 @@
         if (loadPageHistory.length > MAX_HISTORY_LEN) {
           loadPageHistory.shift()
         }
-        console.debug(loadPageHistory)
       }
     };
     xhttp.open("GET", page, true);
@@ -39,7 +38,6 @@
       var prevPage = loadPageHistory.pop()
       loadPage(prevPage);
     }
-    console.debug(loadPageHistory)
   }
 
 </script>
