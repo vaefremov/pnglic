@@ -135,7 +135,8 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 		fnew := f
 		// we should have
 		if byMonths > 0 {
-			fnew.End = f.End.AddDate(0, byMonths, 0)
+			// fnew.End = f.End.AddDate(0, byMonths, 0)
+			fnew.End = time.Now().AddDate(0, byMonths, 0)
 		} else {
 			fnew.End = tillDate
 		}
