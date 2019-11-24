@@ -38,13 +38,6 @@
     </table>
 
     <div class="grid-x grid-margin-x">
-        <button id="extendTo"  onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?till=' + $('#dp1').val(),
-        function (data, status) {
-            loadPage('keyfeatures.html?keyId=[[.keyId]]');
-        })"  class="button cell medium-6 large-6">Extend to</button>
-        <input type="text" class="cell medium-6 large-6" value="[[.proposedExtTerm]]" id="dp1">
-    </div>
-    <div class="grid-x grid-margin-x">
         <button id="extendBy" onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?byMonths=' + $('#extendBySelect').val(),
                 function (data, status) {
                     loadPage('keyfeatures.html?keyId=[[.keyId]]');
@@ -58,6 +51,13 @@
                 <option value="12">1 year</option>
             </select>
         </label>
+    </div>
+    <div class="grid-x grid-margin-x">
+        <button id="extendTo"  onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?till=' + $('#dp1').val(),
+        function (data, status) {
+            loadPage('keyfeatures.html?keyId=[[.keyId]]');
+        })"  class="button cell medium-6 large-6">Extend to</button>
+        <input type="text" class="cell medium-6 large-6" value="[[.proposedExtTerm]]" id="dp1">
     </div>
     <a class="expanded success button" href="/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]"
         download="license_[[.keyId]]_for_[[.client.Name]].xml">Make new file and download to: license_[[.keyId]]_for_[[.client.Name]].xml</a>
