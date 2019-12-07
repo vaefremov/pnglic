@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"encoding/json"
 
@@ -37,6 +38,18 @@ func TestProlongLicensedFeaturesForKeyImpl(t *testing.T) {
 	}
 
 	c, w = newTestContext(db)
+	// Get the initital features
+	c.Params = []gin.Param{gin.Param{Key: "keyId", Value: "123abc"}}
+	openapi.LicensedFeaturesForKey(c)
+	json.Unmarshal(w.Body.Bytes(), &initFeatures)
+	fmt.Println(initFeatures)
+	expectedEnd := "2018-04-30"
+	// expectedEnd := time.Now().AddDate(0, 10, 0).Format("2006-01-02")
+	if initFeatures[0].End != expectedEnd {
+		t.Errorf("Final End of license date not as expected: %s != %s\n", initFeatures[0].End, expectedEnd)
+	}
+
+	c, w = newTestContext(db)
 	buf = new(bytes.Buffer)
 	c.Request, _ = http.NewRequest("POST", "/v1/prolongLicensedFeaturesForKey/123abc?byMonths=10", buf)
 	c.Params = []gin.Param{gin.Param{Key: "keyId", Value: "123abc"}}
@@ -53,9 +66,9 @@ func TestProlongLicensedFeaturesForKeyImpl(t *testing.T) {
 	openapi.LicensedFeaturesForKey(c)
 	json.Unmarshal(w.Body.Bytes(), &initFeatures)
 	fmt.Println(initFeatures)
-	expectedEnd := "2019-03-02"
+	expectedEnd = time.Now().AddDate(0, 10, 0).Format("2006-01-02")
 	if initFeatures[0].End != expectedEnd {
-		t.Errorf("Final End of license date not as expected: %s %s\n", initFeatures[0].End, expectedEnd)
+		t.Errorf("Final End of license date not as expected: %s != %s\n", initFeatures[0].End, expectedEnd)
 	}
 	// t.Error("nil")
 }
