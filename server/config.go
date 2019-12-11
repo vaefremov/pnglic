@@ -24,6 +24,11 @@ type Config struct {
 	StaticContent        string `yaml:"static"`
 	AdminName            string `yaml:"adminName"`
 	AdminPass            string `yaml:"adminPass"`
+	AdminMail            string `yaml:"adminMail"`
+	MailServer           string `yaml:"mailServer"`
+	MailPort             int    `yaml:"mailPort"`
+	MailUser             string `yaml:"mailUser"`
+	MailPass             string `yaml:"mailPass"`
 }
 
 const (
@@ -35,6 +40,8 @@ const (
 	defaultStaticContent      = "templates"
 	defaultAdminName          = "admin"
 	defaultAdminPass          = "admin"
+	defaultAdminMail          = "admin@pangea.ru"
+	defaultMailPort           = 25
 )
 
 var port = flag.Int("p", -1, "Port to start server on")
@@ -45,6 +52,7 @@ var secretPathGuardant = flag.String("sGuardant", "", "Path to the Guardant secr
 var staticFilesPath = flag.String("static", "", "Path to static files and templates")
 var adminName = flag.String("admin", "", "Name of admin user")
 var adminPass = flag.String("password", "", "Password of admin user")
+var adminMail = flag.String("eMail", "", "E-Mail of admin user")
 
 func NewConfig(configPath string) (conf *Config) {
 	conf = &Config{}
@@ -74,6 +82,9 @@ func (c Config) Report() {
 	fmt.Printf("  Guardant secrets file: %s\n", c.SecretsGuardant)
 	fmt.Printf("  Static files in:       %s\n", c.StaticContent)
 	fmt.Printf("  Admin name is:         %s\n", c.AdminName)
+	fmt.Printf("  Admin mail is:         %s\n", c.AdminMail)
+	fmt.Printf("  Mail server:           %s:%d\n", c.MailServer, c.MailPort)
+	fmt.Printf("  Mail user:             %s\n", c.MailUser)
 }
 
 func (c Config) Write(configPath string) (err error) {
@@ -117,6 +128,9 @@ func (c *Config) UpdateFromCLI() {
 	if *adminPass != "" {
 		c.AdminPass = *adminPass
 	}
+	if *adminMail != "" {
+		c.AdminMail = *adminMail
+	}
 }
 
 // InsertDefaults inserts the built-in default values of config parameters
@@ -129,4 +143,6 @@ func (c *Config) InsertDefaults() {
 	c.StaticContent = defaultStaticContent
 	c.AdminName = defaultAdminName
 	c.AdminPass = defaultAdminPass
+	c.AdminMail = defaultAdminMail
+	c.MailPort = defaultMailPort
 }
