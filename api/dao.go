@@ -146,7 +146,7 @@ func (db *DbConn) ClientNameByID(clientID int) (name string, err error) {
 func (db *DbConn) HistoryForClientId(id int) (res []HistoryItem, err error) {
 	tmp := []historyItem{}
 	res = []HistoryItem{}
-	err = db.conn.Select(&tmp, "select h.orgname, cast(h.whenissued as text) as whenissued, h.xml from organizations o, history h where o.id = ? and o.name = h.orgname", id)
+	err = db.conn.Select(&tmp, "select h.orgname, cast(h.whenissued as text) as whenissued, h.xml from organizations o, history h where o.id = ? and o.name = h.orgname order by whenissued desc", id)
 	if err == nil {
 		for _, h := range tmp {
 			if newH, err := convertTimeInHistory(h); err == nil {

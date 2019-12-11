@@ -221,7 +221,8 @@ func TestAddToHistory(t *testing.T) {
 		t.Error(err)
 	}
 	hist, err := db.HistoryForClientId(1)
-	if hist[len(hist)-1].ContentXml != mockLicenseFile {
+	// Note that the most recent license files come first in history
+	if hist[0].ContentXml != mockLicenseFile {
 		t.Error("Wrong content of license file")
 	}
 }
