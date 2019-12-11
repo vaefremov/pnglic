@@ -48,9 +48,10 @@ func New(serv string, port int, username string, password string) MailNotifyer {
 
 func (m MailServiceImpl) SendFile(fileName string, fileBody []byte) error {
 	subj := "License file: " + fileName
-	msg := email.NewMessage(subj, "this is the body")
+	msg := email.NewMessage(subj, "Pls find the license file in the attachment.")
 	msg.From = mail.Address{Name: "Pangea License Generator", Address: m.From}
 	msg.To = m.To
+	// msg.AddCc(mail.Address{Name: "Vladimir A. Efremov", Address: "budwe1ser@yandex.ru"})
 	msg.AttachBuffer("license.xml", fileBody, false)
 	s := &unencryptedAuth{m.A}
 	err := m.Send(m.MailServPort, s, m.From, m.To, msg.Bytes())
