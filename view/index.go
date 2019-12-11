@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/server"
 )
 
 // Index is the index handler.
@@ -79,10 +80,12 @@ func KeyFeatures(c *gin.Context, params *gin.H) {
 		featuresOut = append(featuresOut, tmp)
 	}
 	client, err := db.KeyOfWhichOrg(keyID)
+	conf := c.MustGet("conf").(*server.Config)
 	(*params)["features"] = featuresOut
 	(*params)["keyId"] = keyID
 	(*params)["client"] = client
 	(*params)["proposedExtTerm"] = time.Now().AddDate(0, 1, 0).Format("2006-01-02")
+	(*params)["mailTo"] = conf.AdminMail
 	c.HTML(http.StatusOK, "keyfeatures.html", params)
 }
 

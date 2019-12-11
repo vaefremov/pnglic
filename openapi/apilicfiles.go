@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/pkg/mailnotify"
 	"github.com/vaefremov/pnglic/server"
 )
 
@@ -94,6 +95,16 @@ func MakeLicenseFileImpl(c *gin.Context) {
 		return
 	}
 	err = db.AddToHistory(clientID, time.Now(), resXML)
+	if mailTo := c.Query("mailTo"); mailTo != "" {
+		conf := c.MustGet("conf").(*server.Config)
+		log.Println("Mailing file to ", mailTo)
+		notificator := mailnotify.New(conf.MailServer, conf.MailPort, conf.MailUser, conf.MailPass)
+		notificator.AddTo(mailTo)
+		if err := notificator.SendFile("license.xml", []byte(resXML)); err != nil {
+			log.Println("Error when sending file ", err)
+		}
+	}
+
 	c.Data(http.StatusOK, "application/xml; charset=utf-8", []byte(resXML))
 }
 
