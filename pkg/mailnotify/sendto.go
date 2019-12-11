@@ -35,11 +35,11 @@ func (a *unencryptedAuth) Next(fromServer []byte, more bool) ([]byte, error) {
 	return a.Auth.Next(fromServer, more)
 }
 
-func New(serv string, port int) MailNotifyer {
-	a := smtp.PlainAuth("", "git@pangea.ru", "3X6git", serv)
+func New(serv string, port int, username string, password string) MailNotifyer {
+	a := smtp.PlainAuth("", username, password, serv)
 	newM := MailServiceImpl{
 		Serv: serv,
-		A:    a, From: "Git@pangea.ru", MailServPort: serv + fmt.Sprintf(":%d", port),
+		A:    a, From: username, MailServPort: serv + fmt.Sprintf(":%d", port),
 		To:   []string{},
 		Send: smtp.SendMail,
 	}
