@@ -165,6 +165,11 @@ paths:
       description: ID of key to generate license file for (set of licenses stored in db is used)
       schema:
         type: string
+    - name: mailTo
+      in: query
+      required: false
+      schema:
+        type: string
     get:
       summary: Generate license file from the current set of licenses related to key ID and store it in the history 
       operationId: makeLicenseFile
