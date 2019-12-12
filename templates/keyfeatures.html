@@ -62,9 +62,13 @@
     <a class="expanded success button" href="/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]"
         download="[[.licenseFileName]]">Make new file and download to: [[.licenseFileName]]</a>
     <div class="grid-x grid-margin-x">
-        <button id="sendTo"  onclick="$.get('/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]?mailTo=' + $('#mail_addr').val(), function(data, status) {console.log('After mailTo ' + data + ':' + status)});
+        <button id="sendTo"  onclick="$.get('/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]?mailTo=' + $('#mail_addr').val(), function(data, status) 
+                    {console.log('After mailTo ' + data + ':' + status);
+                     if(status === 'success')  $('#mail_status').css('background-color', 'green');
+                     });
         "  class="success button cell medium-6 large-6">Send to</button>
-        <input type="text" class="cell medium-6 large-6" value="[[.mailTo]]" id="mail_addr">
+        <input type="text" class="cell medium-4 large-4" value="[[.mailTo]]" id="mail_addr">
+        <span class="secondary badge cell medium-1 large-1" id="mail_status">Mail</span>
     </div>
 </div>
 
