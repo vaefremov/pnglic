@@ -32,7 +32,7 @@ func TestNotify(t *testing.T) {
 	mi := mailnotify.New("mail.server", 25, "user@pangea.ru", "**pass**").AddTo("some.addressee").AddTo("some.addressee2")
 	m := mi.(*mailnotify.MailServiceImpl)
 	m.Send = n.Send
-	err := m.SendFile("license.xml", []byte("test body"))
+	err := m.SendFile("VIP Client", "1234abc", []byte("test body"))
 	if err != nil {
 		t.Error(err)
 	}
