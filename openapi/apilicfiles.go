@@ -96,11 +96,15 @@ func MakeLicenseFileImpl(c *gin.Context) {
 	}
 	err = db.AddToHistory(clientID, time.Now(), resXML)
 	if mailTo := c.Query("mailTo"); mailTo != "" {
+		clientName, err := db.ClientNameByID(clientID)
+		if err != nil {
+			log.Println("Error when sending file ", err)
+		}
 		conf := c.MustGet("conf").(*server.Config)
 		log.Println("Mailing file to ", mailTo)
 		notificator := mailnotify.New(conf.MailServer, conf.MailPort, conf.MailUser, conf.MailPass)
 		notificator.AddTo(mailTo)
-		if err := notificator.SendFile("license.xml", []byte(resXML)); err != nil {
+		if err := notificator.SendFile(clientName, keyID, []byte(resXML)); err != nil {
 			log.Println("Error when sending file ", err)
 		}
 	}
