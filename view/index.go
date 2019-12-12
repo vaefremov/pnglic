@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/pkg/mailnotify"
 	"github.com/vaefremov/pnglic/server"
 )
 
@@ -86,6 +87,7 @@ func KeyFeatures(c *gin.Context, params *gin.H) {
 	(*params)["client"] = client
 	(*params)["proposedExtTerm"] = time.Now().AddDate(0, 1, 0).Format("2006-01-02")
 	(*params)["mailTo"] = conf.AdminMail
+	(*params)["licenseFileName"] = mailnotify.MakeLicenseFileName(client.Name, keyID)
 	c.HTML(http.StatusOK, "keyfeatures.html", params)
 }
 

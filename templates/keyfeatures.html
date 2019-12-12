@@ -60,7 +60,7 @@
         <input type="text" class="cell medium-6 large-6" value="[[.proposedExtTerm]]" id="dp1">
     </div>
     <a class="expanded success button" href="/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]"
-        download="license_[[.keyId]]_for_[[.client.Name]].xml">Make new file and download to: license_[[.keyId]]_for_[[.client.Name]].xml</a>
+        download="[[.licenseFileName]]">Make new file and download to: [[.licenseFileName]]</a>
     <div class="grid-x grid-margin-x">
         <button id="sendTo"  onclick="$.get('/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]?mailTo=' + $('#mail_addr').val(), function(data, status) {console.log('After mailTo ' + data + ':' + status)});
         "  class="success button cell medium-6 large-6">Send to</button>
