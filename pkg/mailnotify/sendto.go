@@ -11,6 +11,7 @@ import (
 
 type MailNotifyer interface {
 	SendFile(clientName string, keyId string, fileBody []byte) error
+	SendMessage(subj string, message string) error
 	AddTo(addr string) MailNotifyer
 }
 
@@ -67,6 +68,16 @@ func (m MailServiceImpl) SendFile(clientName string, keyID string, fileBody []by
 func (m *MailServiceImpl) AddTo(addr string) MailNotifyer {
 	m.To = append(m.To, addr)
 	return m
+}
+
+func (m *MailServiceImpl) SendMessage(subj string, message string) (err error) {
+	msg := email.NewMessage(subj, message)
+	msg.From = mail.Address{Name: "Pangea License Generator", Address: m.From}
+	msg.To = m.To
+	// msg.AddCc(mail.Address{Name: "Vladimir A. Efremov", Address: "budwe1ser@yandex.ru"})
+	s := &unencryptedAuth{m.A}
+	err = m.Send(m.MailServPort, s, m.From, m.To, msg.Bytes())
+	return err
 }
 
 // MakeLicenseFileName makes a valid license file name basing on
