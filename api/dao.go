@@ -343,7 +343,7 @@ func (db *DbConn) AddToHistory(orgID int, when time.Time, fileContent string) (e
 	return
 }
 
-type FeatureAndEnd struct {
+type KeyFeatureExpiry struct {
 	KeyID   string
 	Feature string
 	ExpTime time.Time
@@ -352,7 +352,7 @@ type FeatureAndEnd struct {
 
 // WillEndSoon finds all features that will expire within the given interval
 // from now.
-func (db *DbConn) WillEndSoon(intervalFromNow time.Duration) (features []FeatureAndEnd, err error) {
+func (db *DbConn) WillEndSoon(intervalFromNow time.Duration) (features []KeyFeatureExpiry, err error) {
 	type featureAndEnd struct {
 		KeyID   string `db:"keyid"`
 		Feature string `db:"feat"`
@@ -365,11 +365,11 @@ func (db *DbConn) WillEndSoon(intervalFromNow time.Duration) (features []Feature
 	if err != nil {
 		return nil, err
 	}
-	features = []FeatureAndEnd{}
+	features = []KeyFeatureExpiry{}
 	for _, f := range tmp {
 		expTime, _ := time.Parse("02/01/2006", f.ExpTime)
 		extTerm := time.Duration(f.NDays) * 24 * time.Hour
-		features = append(features, FeatureAndEnd{KeyID: f.KeyID, Feature: f.Feature,
+		features = append(features, KeyFeatureExpiry{KeyID: f.KeyID, Feature: f.Feature,
 			ExpTime: expTime, ExpTerm: extTerm})
 	}
 	return features, nil
@@ -449,7 +449,7 @@ const (
 		PRIMARY KEY (id)
 	);
 	`
-	sqlFeaturesExpWithinNDays = `select keyid, feat, end, julianday(date(substr(end, 7, 4)||'-'||substr(end, 4, 2)||'-'||substr(end, 1, 2)))-julianday(date('now')) as ndays 
+	sqlFeaturesExpWithinNDays = `select keyid, feat, cast(end as varchar) as end, julianday(date(substr(end, 7, 4)||'-'||substr(end, 4, 2)||'-'||substr(end, 1, 2)))-julianday(date('now')) as ndays 
 	from licensesets 
 	where date(substr(end, 7, 4)||'-'||substr(end, 4, 2)||'-'||substr(end, 1, 2)) > date('now')
 	and ndays <= ?`

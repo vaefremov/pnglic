@@ -314,7 +314,7 @@ func TestWillEndSoon(t *testing.T) {
 	tillDate2 := time.Now().AddDate(0, 0, 2)
 	keyID := "123abc"
 	newLicset := []api.LicenseSetItem{}
-	currentLicSet, err := db.LicensesSetByKeyId(keyID)
+	currentLicSet, _ := db.LicensesSetByKeyId(keyID)
 	for i, f := range currentLicSet {
 		switch i {
 		case 0:
@@ -324,13 +324,21 @@ func TestWillEndSoon(t *testing.T) {
 		}
 		newLicset = append(newLicset, f)
 	}
+	fmt.Println(newLicset)
 	db.UpdateLicenseSet(keyID, newLicset)
+	newLicset, _ = db.LicensesSetByKeyId(keyID)
 
 	endingFeat, err := db.WillEndSoon(2 * time.Hour * 24)
+	// t.Error(endingFeat)
 	if err != nil {
 		t.Error(err)
 	}
 	assert.Equal(t, 2, len(endingFeat))
+	for i, f := range endingFeat {
+		fmt.Println(f, newLicset[i])
+		assert.Equal(t, newLicset[i].End, f.ExpTime)
+	}
+
 	endingFeat, err = db.WillEndSoon(1 * time.Hour * 24)
 	if err != nil {
 		t.Error(err)
