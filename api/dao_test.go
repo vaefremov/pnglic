@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/vaefremov/pnglic/api"
 )
 
@@ -299,6 +300,43 @@ func TestSetPackageContent(t *testing.T) {
 		}
 	}
 
+}
+
+func TestWillEndSoon(t *testing.T) {
+	db := testDB
+	// endingFeat, err := db.WillEndSoon(10 * time.Hour * 24)
+	// if err != nil {
+	// 	t.Error(err)
+	// }
+	// assert.Equal(t, 0, len(endingFeat))
+
+	tillDate1 := time.Now().AddDate(0, 0, 1)
+	tillDate2 := time.Now().AddDate(0, 0, 2)
+	keyID := "123abc"
+	newLicset := []api.LicenseSetItem{}
+	currentLicSet, err := db.LicensesSetByKeyId(keyID)
+	for i, f := range currentLicSet {
+		switch i {
+		case 0:
+			f.End = tillDate1
+		default:
+			f.End = tillDate2
+		}
+		newLicset = append(newLicset, f)
+	}
+	db.UpdateLicenseSet(keyID, newLicset)
+
+	endingFeat, err := db.WillEndSoon(2 * time.Hour * 24)
+	if err != nil {
+		t.Error(err)
+	}
+	assert.Equal(t, 2, len(endingFeat))
+	endingFeat, err = db.WillEndSoon(1 * time.Hour * 24)
+	if err != nil {
+		t.Error(err)
+	}
+	assert.Equal(t, 1, len(endingFeat))
+	// t.Error(endingFeat)
 }
 
 func TestMain(m *testing.M) {

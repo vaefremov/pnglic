@@ -343,6 +343,38 @@ func (db *DbConn) AddToHistory(orgID int, when time.Time, fileContent string) (e
 	return
 }
 
+type FeatureAndEnd struct {
+	KeyID   string
+	Feature string
+	ExpTime time.Time
+	ExpTerm time.Duration
+}
+
+// WillEndSoon finds all features that will expire within the given interval
+// from now.
+func (db *DbConn) WillEndSoon(intervalFromNow time.Duration) (features []FeatureAndEnd, err error) {
+	type featureAndEnd struct {
+		KeyID   string `db:"keyid"`
+		Feature string `db:"feat"`
+		ExpTime string `db:"end"`
+		NDays   int    `db:"ndays"`
+	}
+	daysFromNow := int(intervalFromNow.Hours() / 24)
+	tmp := []featureAndEnd{}
+	err = db.conn.Select(&tmp, sqlFeaturesExpWithinNDays, daysFromNow)
+	if err != nil {
+		return nil, err
+	}
+	features = []FeatureAndEnd{}
+	for _, f := range tmp {
+		expTime, _ := time.Parse("02/01/2006", f.ExpTime)
+		extTerm := time.Duration(f.NDays) * 24 * time.Hour
+		features = append(features, FeatureAndEnd{KeyID: f.KeyID, Feature: f.Feature,
+			ExpTime: expTime, ExpTerm: extTerm})
+	}
+	return features, nil
+}
+
 func convertTimeInHistory(h historyItem) (res HistoryItem, err error) {
 	res = HistoryItem{ClientName: h.ClientName, ContentXml: h.ContentXml}
 	res.IssueTime, err = time.Parse("2006-01-02 15:04:05", h.IssueTime)
@@ -417,6 +449,10 @@ const (
 		PRIMARY KEY (id)
 	);
 	`
+	sqlFeaturesExpWithinNDays = `select keyid, feat, end, julianday(date(substr(end, 7, 4)||'-'||substr(end, 4, 2)||'-'||substr(end, 1, 2)))-julianday(date('now')) as ndays 
+	from licensesets 
+	where date(substr(end, 7, 4)||'-'||substr(end, 4, 2)||'-'||substr(end, 1, 2)) > date('now')
+	and ndays <= ?`
 )
 
 func populateTestDB(conn *sqlx.DB) (err error) {
