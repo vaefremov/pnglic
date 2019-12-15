@@ -3,7 +3,6 @@ package chkexprd
 import (
 	"fmt"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/vaefremov/pnglic/api"
@@ -66,18 +65,7 @@ func FindFeaturesWillExpire(db *api.DbConn, expTerm time.Duration) (map[string]E
 
 func ReportFeaturesWillExpire(features map[string]ExpFeaturesReportElt, expTerm time.Duration, nt mailnotify.MailNotifyer) error {
 	log.Println("Reporting features that will expire within ", expTerm.String())
-	bld := strings.Builder{}
-	bld.WriteString("Please, check the following keys for features that will expire soon:\r\n")
-	for k, v := range features {
-		bld.WriteString("Key ID: " + k + "\r\n")
-		bld.WriteString("  " + fmt.Sprint(v.ClientName) + "\r\n")
-		// bld.WriteString("  " + fmt.Sprint(v.ExpTime.String()) + "\r\n")
-		bld.WriteString("  Features: " + fmt.Sprint(v.Features) + "\r\n")
-		expDays := v.ExpTerm.Hours() / 24
-		bld.WriteString("  Will expire within " + fmt.Sprint(expDays) + " days\r\n")
-		bld.WriteString("\r\n")
-	}
-	bld.WriteString("\r\nHope that helps. Thanks!")
-	err := nt.SendMessage("Warning: some features will expire in "+fmt.Sprint(expTerm.Hours()/24)+" days", bld.String())
+	message, _ := MakeMessageFromTemplate(features, expTerm)
+	err := nt.SendMessage("Warning: some features will expire in "+fmt.Sprint(expTerm.Hours()/24)+" days", message)
 	return err
 }
