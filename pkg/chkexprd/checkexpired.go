@@ -66,6 +66,6 @@ func FindFeaturesWillExpire(db *api.DbConn, expTerm time.Duration) (map[string]E
 func ReportFeaturesWillExpire(features map[string]ExpFeaturesReportElt, expTerm time.Duration, nt mailnotify.MailNotifyer, conf *server.Config) error {
 	log.Println("Reporting features that will expire within ", expTerm.String())
 	message, _ := MakeMessageFromTemplate(features, expTerm, conf)
-	err := nt.SendMessage("Warning: some features will expire in "+fmt.Sprint(expTerm.Hours()/24)+" days", message)
+	err := nt.SendMessage("Warning: some licenses will expire in "+fmt.Sprint(expTerm.Hours()/24)+" days", message)
 	return err
 }
