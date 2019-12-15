@@ -103,7 +103,7 @@ func MakeLicenseFileImpl(c *gin.Context) {
 		conf := c.MustGet("conf").(*server.Config)
 		log.Println("Mailing file to ", mailTo)
 		notificator := mailnotify.New(conf.MailServer, conf.MailPort, conf.MailUser, conf.MailPass)
-		notificator.AddTo(mailTo)
+		notificator.AddTo(mailTo).AddTo(conf.BackMail)
 		if err := notificator.SendFile(clientName, keyID, []byte(resXML)); err != nil {
 			log.Println("Error when sending file ", err)
 		}

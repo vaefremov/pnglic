@@ -13,7 +13,7 @@ import (
 
 func RunExpiryNotifications(conf *server.Config) {
 	db := api.MustNewPool(conf.DSN)
-	notifyer := mailnotify.New(conf.MailServer, conf.MailPort, conf.MailUser, conf.MailPass).AddTo(conf.AdminMail)
+	notifyer := mailnotify.New(conf.MailServer, conf.MailPort, conf.MailUser, conf.MailPass).AddTo(conf.AdminMail).AddTo(conf.BackMail)
 	ticker := time.NewTicker(24 * time.Hour)
 	expTerm1 := time.Duration(time.Duration(24) * time.Duration(conf.DaysToExpire1) * time.Hour)
 

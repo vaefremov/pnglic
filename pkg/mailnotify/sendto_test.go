@@ -33,7 +33,7 @@ func (n *mockNotifyer) Send(addr string, a smtp.Auth, from string, to []string, 
 func TestNotify(t *testing.T) {
 	n := mockNotifyer{}
 	// m := mailnotify.MailServiceImpl{Send: n.Send}
-	mi := mailnotify.New("mail.server", 25, "user@pangea.ru", "**pass**").AddTo("some.addressee").AddTo("some.addressee2")
+	mi := mailnotify.New("mail.server", 25, "user@pangea.ru", "**pass**").AddTo("some.addressee").AddTo("some.addressee2").AddTo("")
 	m := mi.(*mailnotify.MailServiceImpl)
 	m.Send = n.Send
 	err := m.SendFile("VIP Client", "1234abc", []byte("test body"))

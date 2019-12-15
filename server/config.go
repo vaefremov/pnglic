@@ -29,6 +29,7 @@ type Config struct {
 	MailPort             int    `yaml:"mailPort"`
 	MailUser             string `yaml:"mailUser"`
 	MailPass             string `yaml:"mailPass"`
+	BackMail             string `yaml:"backMail"`
 	DaysToExpire1        int    `yaml:"daysToExpire1"`
 	DaysToExpire2        int    `yaml:"daysToExpire2"`
 }
@@ -46,6 +47,7 @@ const (
 	defaultMailPort           = 25
 	defaultDaysToExpire1      = 7
 	defaultDaysToExpire2      = 1
+	defaultBackMail           = ""
 )
 
 var port = flag.Int("p", -1, "Port to start server on")
@@ -57,6 +59,7 @@ var staticFilesPath = flag.String("static", "", "Path to static files and templa
 var adminName = flag.String("admin", "", "Name of admin user")
 var adminPass = flag.String("password", "", "Password of admin user")
 var adminMail = flag.String("eMail", "", "E-Mail of admin user")
+var backMail = flag.String("eMail", "", "2nd mail address for messages")
 
 func NewConfig(configPath string) (conf *Config) {
 	conf = &Config{}
@@ -89,13 +92,14 @@ func (c Config) Report() {
 	fmt.Printf("  Admin mail is:         %s\n", c.AdminMail)
 	fmt.Printf("  Mail server:           %s:%d\n", c.MailServer, c.MailPort)
 	fmt.Printf("  Mail user:             %s\n", c.MailUser)
-	fmt.Printf("  Exp. Term 1:             %s\n", c.DaysToExpire1)
-	fmt.Printf("  Exp. Term 2:             %s\n", c.DaysToExpire2)
+	fmt.Printf("  Back mail:             %s\n", c.BackMail)
+	fmt.Printf("  Exp. Term 1:           %d\n", c.DaysToExpire1)
+	fmt.Printf("  Exp. Term 2:           %d\n", c.DaysToExpire2)
 }
 
 func (c Config) Write(configPath string) (err error) {
 	if _, err = os.Stat(configPath); err == nil {
-		return fmt.Errorf("file %s exists, will not write into it.", configPath)
+		return fmt.Errorf("file %s exists, will not write into it", configPath)
 	}
 	if f, err := os.Create(configPath); err == nil {
 		encoder := yaml.NewEncoder(f)
@@ -137,6 +141,9 @@ func (c *Config) UpdateFromCLI() {
 	if *adminMail != "" {
 		c.AdminMail = *adminMail
 	}
+	if *backMail != "" {
+		c.BackMail = *backMail
+	}
 }
 
 // InsertDefaults inserts the built-in default values of config parameters
@@ -153,4 +160,5 @@ func (c *Config) InsertDefaults() {
 	c.MailPort = defaultMailPort
 	c.DaysToExpire1 = defaultDaysToExpire1
 	c.DaysToExpire2 = defaultDaysToExpire2
+	c.BackMail = defaultBackMail
 }
