@@ -1,3 +1,6 @@
+[[if .fullPage]][[ template "header.html" .]]
+<section id="main" class="grid-container">
+[[end]]
 <div class="grid-container">
     <h1>Features licensed to key [[.keyId]]</h1>
     <div class="callout primary">
@@ -89,3 +92,6 @@
             });
     });
 </script>
+[[if .fullPage]]
+</section>
+[[ template "footer.html" .]][[end]]

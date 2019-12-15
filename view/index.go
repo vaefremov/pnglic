@@ -57,7 +57,7 @@ type FeatureOut struct {
 func KeyFeatures(c *gin.Context, params *gin.H) {
 	db := c.MustGet("db").(*api.DbConn)
 	keyID := c.Query("keyId")
-
+	fullPage := (c.Query("fullPage") == "true")
 	features, err := db.LicensesSetByKeyId(keyID)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -88,6 +88,7 @@ func KeyFeatures(c *gin.Context, params *gin.H) {
 	(*params)["proposedExtTerm"] = time.Now().AddDate(0, 1, 0).Format("2006-01-02")
 	(*params)["mailTo"] = conf.AdminMail
 	(*params)["licenseFileName"] = mailnotify.MakeLicenseFileName(client.Name, keyID)
+	(*params)["fullPage"] = fullPage
 	c.HTML(http.StatusOK, "keyfeatures.html", params)
 }
 
