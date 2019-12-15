@@ -9,11 +9,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type UserPass struct {
-	User string
-	Pass string
-}
-
 type Config struct {
 	Port                 int    `yaml:"port"`
 	DSN                  string `yaml:"dsn"`
