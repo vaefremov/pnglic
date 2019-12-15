@@ -1,9 +1,11 @@
 package chkexprd_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/vaefremov/pnglic/pkg/chkexprd"
 	"github.com/vaefremov/pnglic/server"
 )
@@ -19,5 +21,6 @@ func TestMakeMessageFromTemplate(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	t.Error(message)
+	assert.Equal(t, 447, len(message))
+	fmt.Println(message)
 }
