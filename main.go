@@ -15,6 +15,7 @@ import (
 	"log"
 
 	sw "github.com/vaefremov/pnglic/openapi"
+	"github.com/vaefremov/pnglic/pkg/chkexprd"
 	"github.com/vaefremov/pnglic/server"
 )
 
@@ -30,6 +31,7 @@ func main() {
 			log.Printf("Warning: %s", err.Error())
 		}
 	}
+	go chkexprd.RunExpiryNotifications(conf)
 	router := sw.NewRouter(conf)
 
 	log.Fatal(router.Run(fmt.Sprintf(":%d", conf.Port)))
