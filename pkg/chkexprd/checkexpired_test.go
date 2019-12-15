@@ -9,6 +9,7 @@ import (
 	"github.com/vaefremov/pnglic/api"
 	"github.com/vaefremov/pnglic/pkg/chkexprd"
 	"github.com/vaefremov/pnglic/pkg/mailnotify"
+	"github.com/vaefremov/pnglic/server"
 )
 
 type mockNotifyer struct {
@@ -38,7 +39,8 @@ func TestReportWillExpireFeatures(t *testing.T) {
 	n := mockNotifyer{}
 	m := notifyer.(*mailnotify.MailServiceImpl)
 	m.Send = n.Send
-	chkexprd.ReportFeaturesWillExpire(tmpReport, expTerm, m)
+	conf := server.Config{Port: 9995, PublicName: "some.host"}
+	chkexprd.ReportFeaturesWillExpire(tmpReport, expTerm, m, &conf)
 	t.Error("Printing...")
 	fmt.Println(string(n.body))
 }
