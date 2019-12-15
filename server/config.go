@@ -11,6 +11,7 @@ import (
 
 type Config struct {
 	Port                 int    `yaml:"port"`
+	PublicName           string `yaml:"serverPublicName"`
 	DSN                  string `yaml:"dsn"`
 	LicfileEncoderLegacy string `yaml:"encoderOld"`
 	LicfileEncoderV3     string `yaml:"encoderV3"`
@@ -43,6 +44,7 @@ const (
 	defaultDaysToExpire1      = 7
 	defaultDaysToExpire2      = 1
 	defaultBackMail           = ""
+	defaultPublicName         = "localhost"
 )
 
 var port = flag.Int("p", -1, "Port to start server on")
@@ -55,6 +57,7 @@ var adminName = flag.String("admin", "", "Name of admin user")
 var adminPass = flag.String("password", "", "Password of admin user")
 var adminMail = flag.String("eMail", "", "E-Mail of admin user")
 var backMail = flag.String("backMail", "", "2nd mail address for messages")
+var publicName = flag.String("publicName", "", "server public name")
 
 // NewConfig decodes config from the specified JSON and updates it with the CLI values
 func NewConfig(configPath string) (conf *Config) {
@@ -79,6 +82,7 @@ func (c Config) Report() {
 	fmt.Printf("Effective config:\n")
 	fmt.Printf("  DSN:                   %s\n", c.DSN)
 	fmt.Printf("  Port:                  %d\n", c.Port)
+	fmt.Printf("  Server public name:    %s\n", c.PublicName)
 	fmt.Printf("  Legacy encoder:        %s\n", c.LicfileEncoderLegacy)
 	fmt.Printf("  V3 encoder:            %s\n", c.LicfileEncoderV3)
 	fmt.Printf("  HASP secrets file:     %s\n", c.SecretsHasp)
@@ -140,6 +144,9 @@ func (c *Config) UpdateFromCLI() {
 	if *backMail != "" {
 		c.BackMail = *backMail
 	}
+	if *publicName != "" {
+		c.PublicName = *publicName
+	}
 }
 
 // InsertDefaults inserts the built-in default values of config parameters
@@ -157,4 +164,5 @@ func (c *Config) InsertDefaults() {
 	c.DaysToExpire1 = defaultDaysToExpire1
 	c.DaysToExpire2 = defaultDaysToExpire2
 	c.BackMail = defaultBackMail
+	c.PublicName = defaultPublicName
 }
