@@ -59,8 +59,9 @@ var staticFilesPath = flag.String("static", "", "Path to static files and templa
 var adminName = flag.String("admin", "", "Name of admin user")
 var adminPass = flag.String("password", "", "Password of admin user")
 var adminMail = flag.String("eMail", "", "E-Mail of admin user")
-var backMail = flag.String("eMail", "", "2nd mail address for messages")
+var backMail = flag.String("backMail", "", "2nd mail address for messages")
 
+// NewConfig decodes config from the specified JSON and updates it with the CLI values
 func NewConfig(configPath string) (conf *Config) {
 	conf = &Config{}
 	conf.InsertDefaults()
