@@ -45,7 +45,7 @@ func MakeMessageFromTemplate(features map[string]ExpFeaturesReportElt, expTerm t
 		ServerPort: conf.Port, ServerPublicURL: fmt.Sprintf("http://%s:%d", conf.PublicName, conf.Port)}
 	for k, v := range features {
 		tmp := templDataElt{KeyID: k, ExpFeaturesReportElt: v, ExpTermDays: int(v.ExpTerm.Hours() / 24),
-			ExpTimeStr: v.ExpTime.Format("1006-01-02")}
+			ExpTimeStr: v.ExpTime.Format("2006-01-02")}
 		data.Keys = append(data.Keys, tmp)
 	}
 	t := template.New("message")
