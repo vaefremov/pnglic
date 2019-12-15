@@ -29,6 +29,8 @@ type Config struct {
 	MailPort             int    `yaml:"mailPort"`
 	MailUser             string `yaml:"mailUser"`
 	MailPass             string `yaml:"mailPass"`
+	DaysToExpire1        int    `yaml:"daysToExpire1"`
+	DaysToExpire2        int    `yaml:"daysToExpire2"`
 }
 
 const (
@@ -42,6 +44,8 @@ const (
 	defaultAdminPass          = "admin"
 	defaultAdminMail          = "admin@pangea.ru"
 	defaultMailPort           = 25
+	defaultDaysToExpire1      = 7
+	defaultDaysToExpire2      = 1
 )
 
 var port = flag.Int("p", -1, "Port to start server on")
@@ -85,6 +89,8 @@ func (c Config) Report() {
 	fmt.Printf("  Admin mail is:         %s\n", c.AdminMail)
 	fmt.Printf("  Mail server:           %s:%d\n", c.MailServer, c.MailPort)
 	fmt.Printf("  Mail user:             %s\n", c.MailUser)
+	fmt.Printf("  Exp. Term 1:             %s\n", c.DaysToExpire1)
+	fmt.Printf("  Exp. Term 2:             %s\n", c.DaysToExpire2)
 }
 
 func (c Config) Write(configPath string) (err error) {
@@ -145,4 +151,6 @@ func (c *Config) InsertDefaults() {
 	c.AdminPass = defaultAdminPass
 	c.AdminMail = defaultAdminMail
 	c.MailPort = defaultMailPort
+	c.DaysToExpire1 = defaultDaysToExpire1
+	c.DaysToExpire2 = defaultDaysToExpire2
 }
