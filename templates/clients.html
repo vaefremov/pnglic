@@ -7,20 +7,20 @@
         <tr>
             <th><a href="#0" onclick="loadPage('clients.html?sort=Id')">ID</a></th>
             <th><a href="#0" onclick="loadPage('clients.html?sort=Name')">Name</a></th>
+            <th>Keys</th>
             <th>Comments</th>
             <th>Contacts</th>
-            <th>Keys</th>
         </tr>
 
         [[ range .clients ]]
         <tr>
             <td>[[ .Id ]]</td>
             <td> <a onclick="loadPage('licenses.html?clientId=[[.Id]]')" href="#0"> [[ .Name ]] </a></td>
+            <td>
+                    <a onclick="loadPage('keys.html?orgId=[[.Id]]')" href="#0">--></a>
+            </td>
             <td>[[ .Comments ]]</td>
             <td>[[ .Contacts ]]</td>
-            <td>
-                <a onclick="loadPage('keys.html?orgId=[[.Id]]')" href="#0">--></a>
-            </td>
         </tr>
         [[ end ]]
     </table>
