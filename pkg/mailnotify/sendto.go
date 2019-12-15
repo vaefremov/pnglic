@@ -9,6 +9,7 @@ import (
 	"github.com/vaefremov/cyr2volapiuk"
 )
 
+// MailNotifyer is the interface implemented by mail notifier
 type MailNotifyer interface {
 	SendFile(clientName string, keyId string, fileBody []byte) error
 	SendMessage(subj string, message string) error
@@ -66,10 +67,14 @@ func (m MailServiceImpl) SendFile(clientName string, keyID string, fileBody []by
 
 // AddTo adds address to the list of recipients
 func (m *MailServiceImpl) AddTo(addr string) MailNotifyer {
-	m.To = append(m.To, addr)
+	// Note, empty addresses are silently skipped
+	if addr != "" {
+		m.To = append(m.To, addr)
+	}
 	return m
 }
 
+// SendMessage sends a free-form message without attachments
 func (m *MailServiceImpl) SendMessage(subj string, message string) (err error) {
 	msg := email.NewMessage(subj, message)
 	msg.From = mail.Address{Name: "Pangea License Generator", Address: m.From}
