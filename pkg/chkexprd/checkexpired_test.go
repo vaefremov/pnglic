@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/vaefremov/pnglic/api"
 	"github.com/vaefremov/pnglic/pkg/chkexprd"
 	"github.com/vaefremov/pnglic/pkg/mailnotify"
@@ -41,7 +42,8 @@ func TestReportWillExpireFeatures(t *testing.T) {
 	m.Send = n.Send
 	conf := server.Config{Port: 9995, PublicName: "some.host"}
 	chkexprd.ReportFeaturesWillExpire(tmpReport, expTerm, m, &conf)
-	t.Error("Printing...")
+	// t.Error("Printing...")
+	assert.Equal(t, 704, len(n.body))
 	fmt.Println(string(n.body))
 }
 
