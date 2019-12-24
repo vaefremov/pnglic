@@ -10,9 +10,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
 
 	sw "github.com/vaefremov/pnglic/openapi"
 	"github.com/vaefremov/pnglic/pkg/chkexprd"
@@ -34,5 +39,30 @@ func main() {
 	go chkexprd.RunExpiryNotifications(conf)
 	router := sw.NewRouter(conf)
 
-	log.Fatal(router.Run(fmt.Sprintf(":%d", conf.Port)))
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", conf.Port),
+		Handler: router,
+	}
+
+	go func() {
+		// service connections
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	log.Println("Shutdown Server ...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown:", err)
+	}
+	log.Println("Server exiting")
+	// log.Fatal(router.Run(fmt.Sprintf(":%d", conf.Port)))
 }
