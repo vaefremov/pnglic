@@ -41,7 +41,7 @@
     </table>
 
     <div class="grid-x grid-margin-x">
-        <button id="extendBy" onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?byMonths=' + $('#extendBySelect').val(),
+        <button id="extendBy" onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?byMonths=' + $('#extendBySelect').val() + '&setVersion=' + $('#selectVersion').val(),
                 function (data, status) {
                     loadPage('keyfeatures.html?keyId=[[.keyId]]');
                 })"  class="button cell medium-6 large-6">Extend by</button>
@@ -56,11 +56,25 @@
         </label>
     </div>
     <div class="grid-x grid-margin-x">
-        <button id="extendTo"  onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?till=' + $('#dp1').val(),
+        <button id="extendTo"  onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?till=' + $('#dp1').val() + '&setVersion=' + $('#selectVersion').val(),
         function (data, status) {
             loadPage('keyfeatures.html?keyId=[[.keyId]]');
         })"  class="button cell medium-6 large-6">Extend to</button>
         <input type="text" class="cell medium-6 large-6" value="[[.proposedExtTerm]]" id="dp1">
+    </div>
+    <div class="grid-x grid-margin-x">
+        <!-- <fieldset class="cell large-6">
+            <legend>Set version to:</legend>
+            <input id="checkboxVersion" type="checkbox"><label for="checkboxVersion">Version Checkbox</label>
+        </fieldset> -->
+        <label class="cell medium-6 large-6">Set version to:
+            <select id="selectVersion">
+              <option value="NoChange">Do not change</option>
+              <option value="1.0">1.0</option>
+              <option value="19.0">19.0</option>
+              <option value="20.0">20.0</option>
+            </select>
+          </label>
     </div>
     <a class="expanded success button" href="/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]"
         download="[[.licenseFileName]]">Make new file and download to: [[.licenseFileName]]</a>

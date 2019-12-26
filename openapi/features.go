@@ -2,6 +2,7 @@ package openapi
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -125,6 +126,15 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 		}
 	}
 
+	var newVersion float64 = 0.
+	newVersionStr := c.Query("setVersion")
+	if newVersionStr != "" {
+		if newVersion, err = strconv.ParseFloat(newVersionStr, 32); err != nil {
+			newVersion = 0.0
+			log.Println("Wrong parameter value, ignored: ", err)
+		}
+	}
+
 	currentLicSet, err := db.LicensesSetByKeyId(keyID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
@@ -136,9 +146,18 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 		// we should have
 		if byMonths > 0 {
 			// fnew.End = f.End.AddDate(0, byMonths, 0)
-			fnew.End = time.Now().AddDate(0, byMonths, 0)
-		} else {
-			fnew.End = tillDate
+			tillDate = time.Now().AddDate(0, byMonths, 0)
+		}
+		fnew.End = tillDate
+
+		if newVersion > 0.0 {
+			fnew.Version = float32(newVersion)
+		}
+		// LM_CONSOLE requires special treatment
+		// @TODO: We should make sure the LM_CONSOLE is present
+		if fnew.Feature == "LM_CONSOLE" {
+			fnew.Version = 1.0
+			fnew.End = tillDate.AddDate(1, 0, 0)
 		}
 		newLicset = append(newLicset, fnew)
 	}
