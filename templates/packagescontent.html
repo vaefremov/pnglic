@@ -1,5 +1,5 @@
 <div class="grid-container">
-    <h1>Features & Packages</h1>
+    <h1>Features & Packages (T)</h1>
 
     <table>
         <tr>
@@ -17,7 +17,7 @@
             [[ end ]]
             <td>
                 [[ if .IsPackage ]]
-                  <a onclick="loadPage('singlepackage.html?package=[[.Name]]')" href="#0">[[ .Name ]]</a>
+                  <a onclick="loadPage('singlepackage.html?package=' + encodeURIComponent('[[.Name]]'))" href="#0">[[ .Name ]]</a>
                 [[ else ]]
                     [[ .Name ]]
                 [[ end ]]

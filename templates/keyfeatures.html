@@ -24,7 +24,7 @@
                 <td>
                         [[ if .IsPackage ]]
                         <span class="warning badge">P</span>
-                        <a onclick="loadPage('singlepackage.html?package=[[.Feature]]')" href="#0">[[ .Feature ]]</a>
+                        <a onclick="loadPage('singlepackage.html?package=' + encodeURIComponent('[[.Feature]]'))" href="#0">[[ .Feature ]]</a>
                         [[ else ]]
                         <span class="primary badge">F</span>
                         [[ .Feature ]]
