@@ -1,5 +1,9 @@
 OPENAPI_GENERATOR = ~/Tmp/SWAGGER/openapi-generator-cli.jar
 JAVA = java
+
+build:
+	cd cmd/pnglic ; go build && mv pnglic ../..
+
 validate:
 	${JAVA} -jar ${OPENAPI_GENERATOR} validate -i ./pnglic.yaml 
 
@@ -10,10 +14,7 @@ generate:
 	# copy all the generated models from ./go to ./openapi
 	cp ./go/model_*.go ./pkg/openapi/
 
-build:
-	cd cmd/pnglic ; go build && mv pnglic ../..
-	# go build 
-	# 
+
 clean:
 	rm -rf ./go
 	rm -rf ./api
