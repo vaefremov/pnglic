@@ -89,7 +89,7 @@ func TestChangeLicensesCountImpl(t *testing.T) {
 	buf := new(bytes.Buffer)
 	var expCount int32 = 20
 	c.Request, _ = http.NewRequest("POST", fmt.Sprintf("/v1/prolongLicensedFeaturesForKey/123abc?setCount=%d", expCount), buf)
-	openapi.ChangeLicensesCountImpl(c)
+	openapi.ChangeLicensesCount(c)
 	if w.Code != 202 {
 		t.Error("Return code not OK", w.Code, w.Body)
 	}
