@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/vaefremov/pnglic/api"
-	"github.com/vaefremov/pnglic/openapi"
+	"github.com/vaefremov/pnglic/pkg/dao"
+	"github.com/vaefremov/pnglic/pkg/openapi"
 )
 
 func TestCreateKeyImpl(t *testing.T) {
-	db := api.MustInMemoryTestPool()
+	db := dao.MustInMemoryTestPool()
 	c, w := newTestContext(db)
 	buf := new(bytes.Buffer)
 	newKeyId := "ffffff"

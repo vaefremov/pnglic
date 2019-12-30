@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/config"
 	"github.com/vaefremov/pnglic/pkg/chkexprd"
+	"github.com/vaefremov/pnglic/pkg/dao"
 	"github.com/vaefremov/pnglic/pkg/mailnotify"
-	"github.com/vaefremov/pnglic/server"
 )
 
 type mockNotifyer struct {
@@ -40,7 +40,7 @@ func TestReportWillExpireFeatures(t *testing.T) {
 	n := mockNotifyer{}
 	m := notifyer.(*mailnotify.MailServiceImpl)
 	m.Send = n.Send
-	conf := server.Config{Port: 9995, PublicName: "some.host"}
+	conf := config.Config{Port: 9995, PublicName: "some.host"}
 	chkexprd.ReportFeaturesWillExpire(tmpReport, expTerm, m, &conf)
 	// t.Error("Printing...")
 	assert.Equal(t, 704, len(n.body))
@@ -48,11 +48,11 @@ func TestReportWillExpireFeatures(t *testing.T) {
 }
 
 func TestFindFeaturesWillExpire(t *testing.T) {
-	db := api.MustInMemoryTestPool()
+	db := dao.MustInMemoryTestPool()
 	tillDate1 := time.Now().AddDate(0, 0, 1)
 	tillDate2 := time.Now().AddDate(0, 0, 2)
 	keyID := "123abc"
-	newLicset := []api.LicenseSetItem{}
+	newLicset := []dao.LicenseSetItem{}
 	currentLicSet, err := db.LicensesSetByKeyId(keyID)
 	if err != nil {
 		t.Error(err)
@@ -68,5 +68,7 @@ func TestFindFeaturesWillExpire(t *testing.T) {
 	}
 	db.UpdateLicenseSet(keyID, newLicset)
 	res, err := chkexprd.FindFeaturesWillExpire(db, 2*time.Hour*24)
-	t.Error(res)
+	assert.Equal(t, 1, len(res))
+	assert.True(t, (24*time.Hour > tillDate1.Sub(res[keyID].ExpTime)) && (tillDate1.Sub(res[keyID].ExpTime) > 0))
+	// t.Error(res)
 }

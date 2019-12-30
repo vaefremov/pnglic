@@ -7,17 +7,17 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/pkg/dao"
 )
 
 type KeyOut struct {
-	api.HWKey
+	dao.HWKey
 	ClientName string
 }
 
 // Keys output the Keys page
 func Keys(c *gin.Context, params *gin.H) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	sortOrder := c.Query("sort")
 	selectedOrgID := -1
 	if tmp, err := strconv.Atoi(c.Query("orgId")); err == nil {

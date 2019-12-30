@@ -14,9 +14,9 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vaefremov/pnglic/api"
-	"github.com/vaefremov/pnglic/server"
-	"github.com/vaefremov/pnglic/view"
+	"github.com/vaefremov/pnglic/pkg/dao"
+	"github.com/vaefremov/pnglic/config"
+	"github.com/vaefremov/pnglic/pkg/view"
 )
 
 // Route is the information for every URI.
@@ -34,7 +34,7 @@ type Route struct {
 // Routes is the list of the generated Route.
 type Routes []Route
 
-func addDatabaseAndConf(db *api.DbConn, conf *server.Config) gin.HandlerFunc {
+func addDatabaseAndConf(db *dao.DbConn, conf *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("db", db)
 		c.Set("conf", conf)
@@ -43,8 +43,8 @@ func addDatabaseAndConf(db *api.DbConn, conf *server.Config) gin.HandlerFunc {
 }
 
 // NewRouter returns a new router.
-func NewRouter(conf *server.Config) *gin.Engine {
-	db := api.MustNewPool(conf.DSN)
+func NewRouter(conf *config.Config) *gin.Engine {
+	db := dao.MustNewPool(conf.DSN)
 	router := gin.Default()
 	router.Delims("[[", "]]") // Template delimiters changed to be able to use Vue.js in template-generated pages
 	router.Static("/s", filepath.Clean(filepath.Join(conf.StaticContent, "../static")))

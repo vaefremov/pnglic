@@ -12,14 +12,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/pkg/dao"
 	"github.com/vaefremov/pnglic/pkg/mailnotify"
-	"github.com/vaefremov/pnglic/server"
+	"github.com/vaefremov/pnglic/config"
 )
 
 // HistoryLicenseFileImpl - Get license file by client id and timestamp of issue
 func HistoryLicenseFileImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	clientID, err := strconv.Atoi(c.Param("clientId"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 3, Message: err.Error()})
@@ -62,7 +62,7 @@ func ExtractKeyIDFromXML(xmlBody string) (keyID string, err error) {
 
 // MakeLicenseFileImpl - Generate license file from the current set of licenses related to key ID and store it in the history
 func MakeLicenseFileImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	clientID, err := strconv.Atoi(c.Param("clientId"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 3, Message: err.Error()})
@@ -100,7 +100,7 @@ func MakeLicenseFileImpl(c *gin.Context) {
 		if err != nil {
 			log.Println("Error when sending file ", err)
 		}
-		conf := c.MustGet("conf").(*server.Config)
+		conf := c.MustGet("conf").(*config.Config)
 		log.Println("Mailing file to ", mailTo)
 		notificator := mailnotify.New(conf.MailServer, conf.MailPort, conf.MailUser, conf.MailPass)
 		notificator.AddTo(mailTo).AddTo(conf.BackMail)
@@ -122,7 +122,7 @@ const featureTemplate = `<%s
 	code="00000000000000000000000000000000" >
 `
 
-func makeXMLFromTemplate(keyID string, db *api.DbConn, licSet []api.LicenseSetItem) (res string, err error) {
+func makeXMLFromTemplate(keyID string, db *dao.DbConn, licSet []dao.LicenseSetItem) (res string, err error) {
 	bodyXML := fmt.Sprintf(`<?xml version="1.0"?><!DOCTYPE license_server>
 	
 <license_server port="1234" id="%s">
@@ -156,7 +156,7 @@ func makeXMLFromTemplate(keyID string, db *api.DbConn, licSet []api.LicenseSetIt
 }
 
 func signLicenseFile(c *gin.Context, bodyXML string) (res string, err error) {
-	conf := c.MustGet("conf").(*server.Config)
+	conf := c.MustGet("conf").(*config.Config)
 	xmlfilepath, err := tmpXMLFile(bodyXML)
 	if err != nil {
 		log.Fatal(err)

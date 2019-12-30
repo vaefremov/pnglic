@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/pkg/dao"
 )
 
 // PingImpl actually implements the logic behind ping request
@@ -27,7 +27,7 @@ func ListKeysImpl(c *gin.Context) {
 		}
 	}
 	res := []HardwareKey{}
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	dbKeys, err := db.Keys()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 1, Message: err.Error()})
@@ -45,7 +45,7 @@ func ListKeysImpl(c *gin.Context) {
 func CreateKeyImpl(c *gin.Context) {
 	// TODO: make sure clientID and keyID are OK: client must exist, key must be a new one
 	// fmt.Println(c.Request.Body
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	newKey := HardwareKey{}
 	err := c.BindJSON(&newKey)
 	if err != nil {
@@ -60,7 +60,7 @@ func CreateKeyImpl(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 3, Message: "Client ID must be specified"})
 		return
 	}
-	err = db.CreateKey(api.HWKey{Id: newKey.Id, OrgId: int(newKey.CurrentOwnerId), Comments: newKey.Kind + " " + newKey.Comments})
+	err = db.CreateKey(dao.HWKey{Id: newKey.Id, OrgId: int(newKey.CurrentOwnerId), Comments: newKey.Kind + " " + newKey.Comments})
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 3, Message: err.Error()})
 		return
@@ -71,7 +71,7 @@ func CreateKeyImpl(c *gin.Context) {
 // ListClientsImpl - Returns list of all organizations related to licensation
 func ListClientsImpl(c *gin.Context) {
 	res := []Organization{}
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	dbClients, err := db.Clients()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
@@ -85,7 +85,7 @@ func ListClientsImpl(c *gin.Context) {
 
 // ListHistoryItems - Returns list of all organizations related to licensation
 func ListHistoryItemsImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	clientID, err := strconv.Atoi(c.Param("clientId"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 3, Message: err.Error()})

@@ -1,22 +1,23 @@
 package openapi_test
 
 import (
+	"bytes"
 	"testing"
 
 	"net/http"
 	"net/http/httptest"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vaefremov/pnglic/api"
-	"github.com/vaefremov/pnglic/openapi"
-	"github.com/vaefremov/pnglic/server"
+	"github.com/vaefremov/pnglic/config"
+	"github.com/vaefremov/pnglic/pkg/dao"
+	"github.com/vaefremov/pnglic/pkg/openapi"
 )
 
 func TestLicenseFile(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Set("db", api.MustNewPool(api.DSN))
+	c.Set("db", dao.MustNewPool(dao.DSN))
 	c.Params = []gin.Param{gin.Param{Key: "clientId", Value: "55"}, gin.Param{Key: "timeOfIssue", Value: "2018-04-26T14:24:54Z"}}
 	openapi.HistoryLicenseFileImpl(c)
 	if w.Code != 200 {
@@ -59,9 +60,12 @@ func TestMakeLicenseFiles(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
-	c.Set("db", api.MustInMemoryTestPool())
-	c.Set("conf", server.NewConfig(""))
+	buf := new(bytes.Buffer)
+	c.Request, _ = http.NewRequest("POST", "/v1/prolongLicensedFeaturesForKey/123abc?till=2018-04-30", buf)
+	c.Set("db", dao.MustInMemoryTestPool())
+	c.Set("conf", config.NewConfig(""))
 	c.Params = []gin.Param{gin.Param{Key: "clientId", Value: "1"}, gin.Param{Key: "keyId", Value: "123abc"}}
+
 	openapi.MakeLicenseFileImpl(c)
 	if w.Code != http.StatusOK {
 		t.Error("Wrong status")

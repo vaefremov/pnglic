@@ -1,4 +1,4 @@
-package api_test
+package dao_test
 
 import (
 	"fmt"
@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/pkg/dao"
 )
 
-var testDB *api.DbConn
+var testDB *dao.DbConn
 
 func TestKeys(t *testing.T) {
-	// db := api.MustNewPool(api.DSN)
+	// db := dao.MustNewPool(dao.DSN)
 	db := testDB
 	res, err := db.Keys()
 	if err != nil {
@@ -29,7 +29,7 @@ func TestKeys(t *testing.T) {
 }
 
 func TestClients(t *testing.T) {
-	// db := api.MustNewPool(api.DSN)
+	// db := dao.MustNewPool(dao.DSN)
 	db := testDB
 	res, err := db.Clients()
 	if err != nil {
@@ -43,7 +43,7 @@ func TestClients(t *testing.T) {
 }
 
 func TestHistoryForClientId(t *testing.T) {
-	// db := api.MustNewPool(api.DSN)
+	// db := dao.MustNewPool(dao.DSN)
 	db := testDB
 	clientId := 2
 	// clientId := 55
@@ -59,7 +59,7 @@ func TestHistoryForClientId(t *testing.T) {
 }
 
 func TestLicensesSetByKeyId(t *testing.T) {
-	// db := api.MustNewPool(api.DSN)
+	// db := dao.MustNewPool(dao.DSN)
 	db := testDB
 	keyId := "123abc"
 	res, err := db.LicensesSetByKeyId(keyId)
@@ -71,7 +71,7 @@ func TestLicensesSetByKeyId(t *testing.T) {
 }
 
 func TestFeatures(t *testing.T) {
-	// db := api.MustNewPool(api.DSN)
+	// db := dao.MustNewPool(dao.DSN)
 	db := testDB
 	res, err := db.Features()
 	if err != nil {
@@ -84,7 +84,7 @@ func TestFeatures(t *testing.T) {
 	}
 }
 func TestPackageContent(t *testing.T) {
-	// db := api.MustNewPool(api.DSN)
+	// db := dao.MustNewPool(dao.DSN)
 	db := testDB
 	pkg := "P1"
 	res, err := db.PackageContent(pkg)
@@ -99,7 +99,7 @@ func TestPackageContent(t *testing.T) {
 }
 
 func TestIsPackage(t *testing.T) {
-	// db := api.MustNewPool(api.DSN)
+	// db := dao.MustNewPool(dao.DSN)
 	db := testDB
 	pkg := "P1"
 	res, err := db.IsPackage(pkg)
@@ -130,14 +130,14 @@ func TestIsPackage(t *testing.T) {
 }
 
 func TestUpdateLicenseSet(t *testing.T) {
-	// db := api.MustInMemoryPool()
+	// db := dao.MustInMemoryPool()
 	keyId := "fake_key"
 	featureFormat := "QQ%02d"
 	start, _ := time.Parse("02/01/2006", "20/06/2018")
 	end, _ := time.Parse("02/01/2006", "21/12/2019")
-	ls := []api.LicenseSetItem{
-		api.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 1), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
-		api.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 2), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
+	ls := []dao.LicenseSetItem{
+		dao.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 1), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
+		dao.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 2), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
 	}
 	err := testDB.UpdateLicenseSet(keyId, ls)
 	if err != nil {
@@ -150,9 +150,9 @@ func TestUpdateLicenseSet(t *testing.T) {
 	if !reflect.DeepEqual(ls, ls1) {
 		t.Error("Should be equal", ls, ls1)
 	}
-	lsBad := []api.LicenseSetItem{
-		api.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 1), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
-		api.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 1), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
+	lsBad := []dao.LicenseSetItem{
+		dao.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 1), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
+		dao.LicenseSetItem{KeyID: keyId, Feature: fmt.Sprintf(featureFormat, 1), Version: 19.01, Count: 2, Start: start, End: end, DupGroup: "DISP"},
 	}
 	err = testDB.UpdateLicenseSet(keyId, lsBad)
 	if err == nil {
@@ -191,21 +191,21 @@ func TestIsKeyBelongsToOrg(t *testing.T) {
 
 func TestCreateKey(t *testing.T) {
 	db := testDB
-	newKey := api.HWKey{Id: "ffffff", OrgId: 2, Comments: "Key ffffff"}
+	newKey := dao.HWKey{Id: "ffffff", OrgId: 2, Comments: "Key ffffff"}
 	if err := db.CreateKey(newKey); err != nil {
 		t.Error(err)
 	}
-	newKey = api.HWKey{Id: "ffffff", OrgId: 2, Comments: "Key ffffff"}
+	newKey = dao.HWKey{Id: "ffffff", OrgId: 2, Comments: "Key ffffff"}
 	if err := db.CreateKey(newKey); err == nil {
 		t.Error(err)
 	}
-	existingKey := api.HWKey{Id: "123abc", OrgId: 2, Comments: "Key ffffff"}
+	existingKey := dao.HWKey{Id: "123abc", OrgId: 2, Comments: "Key ffffff"}
 	if err := db.CreateKey(existingKey); err == nil {
 		t.Error("Error was expected")
 	} else {
 		fmt.Println("2", err)
 	}
-	invalidOrg := api.HWKey{Id: "afffff", OrgId: 20, Comments: "Key afffff"}
+	invalidOrg := dao.HWKey{Id: "afffff", OrgId: 20, Comments: "Key afffff"}
 	if err := db.CreateKey(invalidOrg); err == nil {
 		t.Error("Error was expected")
 	} else {
@@ -313,7 +313,7 @@ func TestWillEndSoon(t *testing.T) {
 	tillDate1 := time.Now().AddDate(0, 0, 1)
 	tillDate2 := time.Now().AddDate(0, 0, 2)
 	keyID := "123abc"
-	newLicset := []api.LicenseSetItem{}
+	newLicset := []dao.LicenseSetItem{}
 	currentLicSet, _ := db.LicensesSetByKeyId(keyID)
 	for i, f := range currentLicSet {
 		switch i {
@@ -348,7 +348,7 @@ func TestWillEndSoon(t *testing.T) {
 }
 
 func TestMain(m *testing.M) {
-	testDB = api.MustInMemoryTestPool()
+	testDB = dao.MustInMemoryTestPool()
 	os.Exit(m.Run())
 }
 

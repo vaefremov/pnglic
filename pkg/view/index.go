@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/pkg/dao"
 	"github.com/vaefremov/pnglic/pkg/mailnotify"
-	"github.com/vaefremov/pnglic/server"
+	"github.com/vaefremov/pnglic/config"
 )
 
 // Index is the index handler.
@@ -47,7 +47,7 @@ func StartPage(c *gin.Context, params *gin.H) {
 }
 
 type FeatureOut struct {
-	api.LicenseSetItem
+	dao.LicenseSetItem
 	IsPackage      bool
 	InsideFeatures []string
 }
@@ -55,7 +55,7 @@ type FeatureOut struct {
 // KeyFeatures output page that implements use cases related to extending term of
 // use of licenses
 func KeyFeatures(c *gin.Context, params *gin.H) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	keyID := c.Query("keyId")
 	fullPage := (c.Query("fullPage") == "true")
 	features, err := db.LicensesSetByKeyId(keyID)
@@ -81,7 +81,7 @@ func KeyFeatures(c *gin.Context, params *gin.H) {
 		featuresOut = append(featuresOut, tmp)
 	}
 	client, err := db.KeyOfWhichOrg(keyID)
-	conf := c.MustGet("conf").(*server.Config)
+	conf := c.MustGet("conf").(*config.Config)
 	(*params)["features"] = featuresOut
 	(*params)["keyId"] = keyID
 	(*params)["client"] = client
@@ -93,18 +93,18 @@ func KeyFeatures(c *gin.Context, params *gin.H) {
 }
 
 type HistoryItemView struct {
-	api.HistoryItem
+	dao.HistoryItem
 	TimeOfIssueStr string
 }
 
 // History outputs history of issues
 func History(c *gin.Context, params *gin.H) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	clientID := 1
 	if tmp, err := strconv.Atoi(c.Query("clientId")); err == nil {
 		clientID = tmp
 	} else {
-		(*params)["history"] = []api.HistoryItem{}
+		(*params)["history"] = []dao.HistoryItem{}
 		c.HTML(http.StatusOK, "licenses.html", params)
 		fmt.Println("Unable to get client ID")
 		return
@@ -126,7 +126,7 @@ func History(c *gin.Context, params *gin.H) {
 }
 
 func Features(c *gin.Context, params *gin.H) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	features, err := db.Features()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -143,12 +143,12 @@ func Features(c *gin.Context, params *gin.H) {
 }
 
 func Templates(c *gin.Context, params *gin.H) {
-	// db := c.MustGet("db").(*api.DbConn)
+	// db := c.MustGet("db").(*dao.DbConn)
 	c.HTML(http.StatusOK, "templates.html", params)
 }
 
 func PackagesContent(c *gin.Context, params *gin.H) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	features, err := db.Features()
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
@@ -185,7 +185,7 @@ func PackagesContent(c *gin.Context, params *gin.H) {
 }
 
 func SinglePackageContent(c *gin.Context, params *gin.H) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	packageName := c.Query("package")
 	if packageName == "" {
 		c.AbortWithStatus(http.StatusBadRequest)
@@ -200,7 +200,7 @@ func SinglePackageContent(c *gin.Context, params *gin.H) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 	}
 	tmpFeatures, err := db.Features()
-	mapFeatures := map[string]api.Feature{}
+	mapFeatures := map[string]dao.Feature{}
 	for _, f := range tmpFeatures {
 		if f.Description == "" {
 			f.Description = "No description so far"

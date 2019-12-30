@@ -6,17 +6,17 @@ import (
 	"sort"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/pkg/dao"
 )
 
 type ClientOut struct {
-	api.Organization
+	dao.Organization
 	Keys []string
 }
 
 // Clients output list of clients
 func Clients(c *gin.Context, params *gin.H) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	clients, err := db.Clients()
 	sortOrder := c.Query("sort")
 	clientsOut := []ClientOut{}

@@ -1,4 +1,4 @@
-package server
+package config
 
 import (
 	"flag"
@@ -65,8 +65,10 @@ func NewConfig(configPath string) (conf *Config) {
 	conf.InsertDefaults()
 	log.Printf("Reading config from: %s", configPath)
 	f, err := os.Open(configPath)
+	defer f.Close()
 	if err != nil {
 		log.Println("Warning", err)
+		return
 	}
 	decoder := yaml.NewDecoder(f)
 	err = decoder.Decode(conf)

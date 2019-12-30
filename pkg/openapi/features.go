@@ -8,12 +8,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vaefremov/pnglic/api"
+	"github.com/vaefremov/pnglic/pkg/dao"
 )
 
 // LicensedFeaturesForKeyImpl - Returns list of all license features related to a given key
 func LicensedFeaturesForKeyImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	keyID := c.Param("keyId")
 	tmp, err := db.LicensesSetByKeyId(keyID)
 	if err != nil {
@@ -32,7 +32,7 @@ func LicensedFeaturesForKeyImpl(c *gin.Context) {
 
 // ListFeaturesImpl - Returns list of features
 func ListFeaturesImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	tmp, err := db.Features()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
@@ -48,7 +48,7 @@ func ListFeaturesImpl(c *gin.Context) {
 // PackageContentImpl - Returns list of features belonging to the specified package.
 // Returns InlineResponse200 struct
 func PackageContentImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	packageName := c.Param("packageName")
 	isPackage, err := db.IsPackage(packageName)
 	if err != nil {
@@ -76,7 +76,7 @@ func PackageContentImpl(c *gin.Context) {
 
 // UpdateLicensedFeaturesForKeyImpl - Update license features for the given key ID, replace the previousely defined ones
 func UpdateLicensedFeaturesForKeyImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	keyID := c.Param("keyId")
 	// TODO: should check that keyId ia a valid key
 	res := []LicensedFeature{}
@@ -85,7 +85,7 @@ func UpdateLicensedFeaturesForKeyImpl(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 20, Message: "Malformed input: " + err.Error()})
 		return
 	}
-	newLicset := []api.LicenseSetItem{}
+	newLicset := []dao.LicenseSetItem{}
 	for _, f := range res {
 		start, err := time.Parse("2006-01-02", f.Start)
 		if err != nil {
@@ -97,7 +97,7 @@ func UpdateLicensedFeaturesForKeyImpl(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusBadRequest, Error{Code: 20, Message: "Malformed input: " + err.Error()})
 			return
 		}
-		newFeature := api.LicenseSetItem{KeyID: keyID, Feature: f.CountedFeature.Name, Version: f.CountedFeature.Version, Count: int(f.CountedFeature.Count), Start: start, End: end, DupGroup: f.CountedFeature.DupGroup}
+		newFeature := dao.LicenseSetItem{KeyID: keyID, Feature: f.CountedFeature.Name, Version: f.CountedFeature.Version, Count: int(f.CountedFeature.Count), Start: start, End: end, DupGroup: f.CountedFeature.DupGroup}
 		newLicset = append(newLicset, newFeature)
 	}
 	err = db.UpdateLicenseSet(keyID, newLicset)
@@ -110,7 +110,7 @@ func UpdateLicensedFeaturesForKeyImpl(c *gin.Context) {
 
 // ProlongLicensedFeaturesForKeyImpl - Update license features for the given key ID, replace the previousely defined ones
 func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	keyID := c.Param("keyId")
 	var byMonths int
 	tillDate, err := time.Parse("2006-01-02", c.Query("till"))
@@ -140,7 +140,7 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
 		return
 	}
-	newLicset := []api.LicenseSetItem{}
+	newLicset := []dao.LicenseSetItem{}
 	for _, f := range currentLicSet {
 		fnew := f
 		// we should have
@@ -171,7 +171,7 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 
 // CreateFeatureImpl implementes updating or creating new feature
 func CreateFeatureImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	featureName := c.Param("featureName")
 	f := Feature{}
 	err := c.BindJSON(&f)
@@ -196,7 +196,7 @@ func CreateFeatureImpl(c *gin.Context) {
 
 // DeleteFeatureImpl - Deletes a nfeature
 func DeleteFeatureImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	featureName := c.Param("featureName")
 	err := db.DeleteFeature(featureName)
 	if err != nil {
@@ -208,7 +208,7 @@ func DeleteFeatureImpl(c *gin.Context) {
 
 // UpdatePackageImpl - Creates new package with the given content or modifies an existing package
 func UpdatePackageImpl(c *gin.Context) {
-	db := c.MustGet("db").(*api.DbConn)
+	db := c.MustGet("db").(*dao.DbConn)
 	packageName := c.Param("packageName")
 	features := []string{}
 	err := c.BindJSON(&features)

@@ -2,7 +2,7 @@ package chkexprd
 
 import (
 	"fmt"
-	"github.com/vaefremov/pnglic/server"
+	"github.com/vaefremov/pnglic/config"
 	"strings"
 	"text/template"
 	"time"
@@ -23,7 +23,7 @@ type templDataElt struct {
 	ExpFeaturesReportElt
 }
 
-func MakeSimpleMessage(features map[string]ExpFeaturesReportElt, expTerm time.Duration, conf *server.Config) (res string, err error) {
+func MakeSimpleMessage(features map[string]ExpFeaturesReportElt, expTerm time.Duration, conf *config.Config) (res string, err error) {
 	bld := strings.Builder{}
 	bld.WriteString("Please, check the following keys for features that will expire soon:\r\n")
 	for k, v := range features {
@@ -39,7 +39,7 @@ func MakeSimpleMessage(features map[string]ExpFeaturesReportElt, expTerm time.Du
 	return bld.String(), nil
 }
 
-func MakeMessageFromTemplate(features map[string]ExpFeaturesReportElt, expTerm time.Duration, conf *server.Config) (res string, err error) {
+func MakeMessageFromTemplate(features map[string]ExpFeaturesReportElt, expTerm time.Duration, conf *config.Config) (res string, err error) {
 	bld := strings.Builder{}
 	data := templData{ExpTerm: expTerm, ExpTermDays: int(expTerm.Hours() / 24),
 		ServerPort: conf.Port, ServerPublicURL: fmt.Sprintf("http://%s:%d", conf.PublicName, conf.Port)}

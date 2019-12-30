@@ -19,9 +19,9 @@ import (
 	"os/signal"
 	"time"
 
-	sw "github.com/vaefremov/pnglic/openapi"
+	"github.com/vaefremov/pnglic/config"
 	"github.com/vaefremov/pnglic/pkg/chkexprd"
-	"github.com/vaefremov/pnglic/server"
+	sw "github.com/vaefremov/pnglic/pkg/openapi"
 )
 
 var configPath = flag.String("c", "./pnglic_config.yaml", "Path to config file")
@@ -29,7 +29,7 @@ var writeConfigToFile = flag.Bool("x", false, "Generate config file filled with 
 
 func main() {
 	flag.Parse()
-	conf := server.NewConfig(*configPath)
+	conf := config.NewConfig(*configPath)
 	conf.Report()
 	if *writeConfigToFile {
 		if err := conf.Write(*configPath); err != nil {
