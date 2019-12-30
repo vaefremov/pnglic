@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/vaefremov/pnglic/config"
 	"github.com/vaefremov/pnglic/pkg/dao"
 	"github.com/vaefremov/pnglic/pkg/mailnotify"
-	"github.com/vaefremov/pnglic/config"
 )
 
 // Index is the index handler.
@@ -63,6 +63,7 @@ func KeyFeatures(c *gin.Context, params *gin.H) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
+	proposedCount := 1
 	featuresOut := []FeatureOut{}
 	for _, f := range features {
 		isPackage, _ := db.IsPackage(f.Feature)
@@ -78,6 +79,9 @@ func KeyFeatures(c *gin.Context, params *gin.H) {
 			IsPackage:      isPackage,
 			InsideFeatures: packageContentStr,
 		}
+		if tmp.Count > proposedCount {
+			proposedCount = tmp.Count
+		}
 		featuresOut = append(featuresOut, tmp)
 	}
 	client, err := db.KeyOfWhichOrg(keyID)
@@ -86,6 +90,7 @@ func KeyFeatures(c *gin.Context, params *gin.H) {
 	(*params)["keyId"] = keyID
 	(*params)["client"] = client
 	(*params)["proposedExtTerm"] = time.Now().AddDate(0, 1, 0).Format("2006-01-02")
+	(*params)["proposedCount"] = proposedCount
 	(*params)["mailTo"] = conf.AdminMail
 	(*params)["licenseFileName"] = mailnotify.MakeLicenseFileName(client.Name, keyID)
 	(*params)["fullPage"] = fullPage
