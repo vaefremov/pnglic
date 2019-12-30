@@ -17,3 +17,4 @@ build:
 clean:
 	rm -rf ./go
 	rm -rf ./api
+	rm -f pnglic
