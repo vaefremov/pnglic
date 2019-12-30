@@ -168,6 +168,7 @@ paths:
     - name: mailTo
       in: query
       required: false
+      description: e-mail address the new license file should be sent to
       schema:
         type: string
     get:
@@ -367,6 +368,13 @@ paths:
       schema:
         type: integer
         minimum: 1
+    - name: setCount
+      in: query
+      required: false
+      description: Max number of license corresponding to each feature that can be checked out
+      schema:
+        type: integer
+        minimum: 1
     - name: till
       in: query
       required: false
@@ -377,6 +385,38 @@ paths:
     post:
       summary: Update license features for the given key ID, replace the previousely defined ones
       operationId: prolongLicensedFeaturesForKey
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LicensedFeatures"
+      responses:
+        '202':
+          description: Null response. Features updated
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /changeFeaturesCountForKey/{keyId}:
+    parameters:
+    - name: keyId
+      in: path
+      required: true
+      description: Key id to that the currently availble licensed features pertains to
+      schema:
+        type: string
+    - name: setCount
+      in: query
+      required: false
+      description: Max number of license corresponding to each feature that can be checked out
+      schema:
+        type: integer
+        minimum: 1
+    post:
+      summary: Update license features for the given key ID, set counts of all features to the value of the setCount parameter
+      operationId: changeLicensesCount
       requestBody:
         content:
           application/json:

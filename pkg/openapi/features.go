@@ -109,6 +109,7 @@ func UpdateLicensedFeaturesForKeyImpl(c *gin.Context) {
 }
 
 // ProlongLicensedFeaturesForKeyImpl - Update license features for the given key ID, replace the previousely defined ones
+// Also, the count of the issued features may be set to a number specified by the count parameter.
 func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 	db := c.MustGet("db").(*dao.DbConn)
 	keyID := c.Param("keyId")
@@ -158,6 +159,39 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 		if fnew.Feature == "LM_CONSOLE" {
 			fnew.Version = 1.0
 			fnew.End = tillDate.AddDate(1, 0, 0)
+		}
+		newLicset = append(newLicset, fnew)
+	}
+	err = db.UpdateLicenseSet(keyID, newLicset)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 20, Message: "Input rejected: " + err.Error()})
+		return
+	}
+	c.JSON(http.StatusAccepted, "")
+}
+
+func ChangeLicensesCountImpl(c *gin.Context) {
+	db := c.MustGet("db").(*dao.DbConn)
+	keyID := c.Param("keyId")
+
+	var err error
+	var newCount int = 0
+	if newCountStr := c.Query("setCount"); newCountStr != "" {
+		if newCount, err = strconv.Atoi(newCountStr); err != nil {
+			newCount = 0
+			log.Println("Wrong value of the count parameter, ignored: ", err)
+		}
+	}
+	currentLicSet, err := db.LicensesSetByKeyId(keyID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
+		return
+	}
+	newLicset := []dao.LicenseSetItem{}
+	for _, f := range currentLicSet {
+		fnew := f
+		if newCount > 0 {
+			fnew.Count = newCount
 		}
 		newLicset = append(newLicset, fnew)
 	}

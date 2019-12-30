@@ -13,6 +13,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ChangeLicensesCount - Update license features for the given key ID, set counts of all features to the value of the setCount parameter
+func ChangeLicensesCount(c *gin.Context) {
+	ChangeLicensesCountImpl(c)
+}
+
 // CreateFeature - Creates a new feature
 func CreateFeature(c *gin.Context) {
 	CreateFeatureImpl(c)

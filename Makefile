@@ -15,4 +15,5 @@ build:
 	# go build 
 	# 
 clean:
-	rm -r ./go
+	rm -rf ./go
+	rm -rf ./api
