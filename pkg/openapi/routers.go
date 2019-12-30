@@ -14,8 +14,8 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vaefremov/pnglic/pkg/dao"
 	"github.com/vaefremov/pnglic/config"
+	"github.com/vaefremov/pnglic/pkg/dao"
 	"github.com/vaefremov/pnglic/pkg/view"
 )
 
@@ -79,6 +79,13 @@ var routes = Routes{
 		http.MethodGet,
 		"/",
 		DefaultEntryPoint,
+	},
+
+	{
+		"ChangeLicensesCount",
+		http.MethodPost,
+		"/v1/changeFeaturesCountForKey/:keyId",
+		ChangeLicensesCount,
 	},
 
 	{
