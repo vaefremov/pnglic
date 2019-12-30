@@ -1,5 +1,10 @@
-# pnglic
-Utility REST server to manage Pangea licenses and customers DB
+# pnglic: Example of REST Backend and templates-based Frontend
+
+Utility REST server to manage Pangea licenses and customers DB. Actually, this is an example
+of REST server (API is  defined by the OpenAPI YAML descriptor) and a frontend
+part using the API and built using the HTML templates.
+
+## Overview
 
 This is a backend server meeting the following requirements:
 
