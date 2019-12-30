@@ -76,6 +76,13 @@
             </select>
           </label>
     </div>
+    <div class="grid-x grid-margin-x">
+        <button id="setCount"  onclick="$.post('/v1/changeFeaturesCountForKey/[[.keyId]]?setCount=' + $('#count').val(),
+        function (data, status) {
+            loadPage('keyfeatures.html?keyId=[[.keyId]]');
+        })"  class="button cell medium-6 large-6">Set count to:</button>
+        <input type="number" class="cell medium-6 large-6" value="1" id="count">
+    </div>
     <a class="expanded success button" href="/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]"
         download="[[.licenseFileName]]">Make new file and download to: [[.licenseFileName]]</a>
     <div class="grid-x grid-margin-x">
