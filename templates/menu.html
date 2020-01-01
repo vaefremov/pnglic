@@ -39,6 +39,15 @@
       loadPage(prevPage);
     }
   }
+  var selectedFeatures = function(features) {
+        url_part = []
+        for (f of features) {
+            if(document.getElementById(f['EltId']).checked) {
+                url_part.push(encodeURIComponent(f['Feature']))
+            }
+        }
+        return url_part.join(',')
+    }
 
 </script>
 

@@ -382,6 +382,12 @@ paths:
       schema:
         type: string
         format: date
+    - name: restrictTo
+      in: query
+      required: false
+      description: Comma-separated list of features the action should be applied to
+      schema:
+        type: string
     post:
       summary: Update license features for the given key ID, replace the previousely defined ones
       operationId: prolongLicensedFeaturesForKey
@@ -414,6 +420,12 @@ paths:
       schema:
         type: integer
         minimum: 1
+    - name: restrictTo
+      in: query
+      required: false
+      description: Comma-separated list of features the action should be applied to
+      schema:
+        type: string
     post:
       summary: Update license features for the given key ID, set counts of all features to the value of the setCount parameter
       operationId: changeLicensesCount

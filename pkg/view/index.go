@@ -48,6 +48,7 @@ func StartPage(c *gin.Context, params *gin.H) {
 
 type FeatureOut struct {
 	dao.LicenseSetItem
+	EltId          string
 	IsPackage      bool
 	InsideFeatures []string
 }
@@ -65,6 +66,7 @@ func KeyFeatures(c *gin.Context, params *gin.H) {
 	}
 	proposedCount := 1
 	featuresOut := []FeatureOut{}
+	ind := 0
 	for _, f := range features {
 		isPackage, _ := db.IsPackage(f.Feature)
 		packageContentStr := []string{}
@@ -78,11 +80,13 @@ func KeyFeatures(c *gin.Context, params *gin.H) {
 		tmp := FeatureOut{LicenseSetItem: f,
 			IsPackage:      isPackage,
 			InsideFeatures: packageContentStr,
+			EltId:          fmt.Sprintf("F_%d", ind),
 		}
 		if tmp.Count > proposedCount {
 			proposedCount = tmp.Count
 		}
 		featuresOut = append(featuresOut, tmp)
+		ind += 1
 	}
 	client, err := db.KeyOfWhichOrg(keyID)
 	conf := c.MustGet("conf").(*config.Config)

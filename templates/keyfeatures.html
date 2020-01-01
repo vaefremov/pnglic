@@ -10,6 +10,7 @@
     <table>
             <thead>
               <tr>
+                  <th> </th>
                 <th width="200">Feature/Package</th>
                 <th width="50">Ver</th>
                 <th width="150">Start</th>
@@ -21,6 +22,7 @@
             <tbody>
                 [[ range .features ]]
               <tr>
+                  <td width="50"><input id="[[.EltId]]" type="checkbox"></td>
                 <td>
                         [[ if .IsPackage ]]
                         <span class="warning badge">P</span>
@@ -39,9 +41,22 @@
               [[ end ]]
             </tbody>
     </table>
-
     <div class="grid-x grid-margin-x">
-        <button id="extendBy" onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?byMonths=' + $('#extendBySelect').val() + '&setVersion=' + $('#selectVersion').val(),
+        <button class="button cell medium-2 large-2" id="resetSelection" onclick="
+            for(f of [[.features]]) {
+                document.getElementById(f['EltId']).checked = false;
+            }
+            
+            ">Reset selection</button>
+    </div>
+    <div class="grid-x grid-margin-x">
+        <button id="extendBy" onclick="
+            url = '/v1/prolongLicensedFeaturesForKey/[[.keyId]]?byMonths=' + $('#extendBySelect').val() + '&setVersion=' + $('#selectVersion').val();
+            selected = selectedFeatures([[.features]]);
+            if(selected) {
+                url += '&restrictTo=' + selected
+            }
+            $.post(url,
                 function (data, status) {
                     loadPage('keyfeatures.html?keyId=[[.keyId]]');
                 })"  class="button cell medium-6 large-6">Extend by</button>
@@ -56,17 +71,19 @@
         </label>
     </div>
     <div class="grid-x grid-margin-x">
-        <button id="extendTo"  onclick="$.post('/v1/prolongLicensedFeaturesForKey/[[.keyId]]?till=' + $('#dp1').val() + '&setVersion=' + $('#selectVersion').val(),
-        function (data, status) {
-            loadPage('keyfeatures.html?keyId=[[.keyId]]');
-        })"  class="button cell medium-6 large-6">Extend to</button>
+        <button id="extendTo"  onclick="
+            url = '/v1/prolongLicensedFeaturesForKey/[[.keyId]]?till=' + $('#dp1').val() + '&setVersion=' + $('#selectVersion').val();
+            selected = selectedFeatures([[.features]]);
+            if(selected) {
+                url += '&restrictTo=' + selected
+            }
+            $.post(url,
+            function (data, status) {
+                loadPage('keyfeatures.html?keyId=[[.keyId]]');
+            })"  class="button cell medium-6 large-6">Extend to</button>
         <input type="text" class="cell medium-6 large-6" value="[[.proposedExtTerm]]" id="dp1">
     </div>
     <div class="grid-x grid-margin-x">
-        <!-- <fieldset class="cell large-6">
-            <legend>Set version to:</legend>
-            <input id="checkboxVersion" type="checkbox"><label for="checkboxVersion">Version Checkbox</label>
-        </fieldset> -->
         <label class="cell medium-6 large-6">When extending, set version to:
             <select id="selectVersion">
               <option value="NoChange">Do not change</option>
@@ -77,10 +94,16 @@
           </label>
     </div>
     <div class="grid-x grid-margin-x">
-        <button id="setCount"  onclick="$.post('/v1/changeFeaturesCountForKey/[[.keyId]]?setCount=' + $('#count').val(),
-        function (data, status) {
-            loadPage('keyfeatures.html?keyId=[[.keyId]]');
-        })"  class="button cell medium-6 large-6">Set count to:</button>
+        <button id="setCount"  onclick="
+            url = '/v1/changeFeaturesCountForKey/[[.keyId]]?setCount=' + $('#count').val();
+            selected = selectedFeatures([[.features]]);
+            if(selected) {
+                url += '&restrictTo=' + selected
+            }
+            $.post(url,
+                function (data, status) {
+                    loadPage('keyfeatures.html?keyId=[[.keyId]]');
+            })"  class="button cell medium-6 large-6">Set count to:</button>
         <input type="number" class="cell medium-6 large-6" value="[[.proposedCount]]" id="count">
     </div>
     <a class="expanded success button" href="/v1/newLicenseFile/[[.client.Id]]/[[.keyId]]"

@@ -101,7 +101,38 @@ func TestChangeLicensesCountImpl(t *testing.T) {
 		t.Error("After setting count", err)
 	}
 	fmt.Println("After setting count:", initFeatures)
+	assert.True(t, len(initFeatures) > 0)
 	assert.Equal(t, expCount, initFeatures[0].CountedFeature.Count)
+}
+
+func TestChangeLicensesCountImpl_RestrictTo(t *testing.T) {
+	db := dao.MustInMemoryTestPool()
+	c, w := newTestContext(db)
+	initFeatures := []openapi.LicensedFeature{}
+	// Check the counts
+	c, w = newTestContext(db)
+	c.Params = []gin.Param{gin.Param{Key: "keyId", Value: "123abc"}}
+	buf := new(bytes.Buffer)
+
+	var expCount_changed int32 = 20
+	var expCount_unchanged int32 = 10
+
+	c.Request, _ = http.NewRequest("POST", fmt.Sprintf("/v1/prolongLicensedFeaturesForKey/123abc?setCount=%d&restrictTo=P1", expCount_changed), buf)
+	openapi.ChangeLicensesCount(c)
+	if w.Code != 202 {
+		t.Error("Return code not OK", w.Code, w.Body)
+	}
+
+	c, w = newTestContext(db)
+	c.Params = []gin.Param{gin.Param{Key: "keyId", Value: "123abc"}}
+	openapi.LicensedFeaturesForKey(c)
+	if err := json.Unmarshal(w.Body.Bytes(), &initFeatures); err != nil {
+		t.Error("After setting count", err)
+	}
+	fmt.Println("After setting count:", initFeatures)
+	assert.True(t, len(initFeatures) == 2)
+	assert.Equal(t, expCount_unchanged, initFeatures[0].CountedFeature.Count)
+	assert.Equal(t, expCount_changed, initFeatures[1].CountedFeature.Count)
 }
 
 func newTestContext(db *dao.DbConn) (*gin.Context, *httptest.ResponseRecorder) {

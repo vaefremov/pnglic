@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -136,6 +137,14 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 		}
 	}
 
+	// Retrieve list of feature this request should act on
+	featuresSet := map[string]bool{}
+	for _, f := range strings.Split(c.Query("restrictTo"), ",") {
+		if f != "" {
+			featuresSet[f] = true
+		}
+	}
+
 	currentLicSet, err := db.LicensesSetByKeyId(keyID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
@@ -144,21 +153,24 @@ func ProlongLicensedFeaturesForKeyImpl(c *gin.Context) {
 	newLicset := []dao.LicenseSetItem{}
 	for _, f := range currentLicSet {
 		fnew := f
-		// we should have
-		if byMonths > 0 {
-			// fnew.End = f.End.AddDate(0, byMonths, 0)
-			tillDate = time.Now().AddDate(0, byMonths, 0)
-		}
-		fnew.End = tillDate
+		if len(featuresSet) == 0 || featuresSet[f.Feature] {
+			// we should have
+			if byMonths > 0 {
+				// fnew.End = f.End.AddDate(0, byMonths, 0)
+				tillDate = time.Now().AddDate(0, byMonths, 0)
+			}
+			fnew.End = tillDate
 
-		if newVersion > 0.0 {
-			fnew.Version = float32(newVersion)
-		}
-		// LM_CONSOLE requires special treatment
-		// @TODO: We should make sure the LM_CONSOLE is present
-		if fnew.Feature == "LM_CONSOLE" {
-			fnew.Version = 1.0
-			fnew.End = tillDate.AddDate(1, 0, 0)
+			if newVersion > 0.0 {
+				fnew.Version = float32(newVersion)
+			}
+			// LM_CONSOLE requires special treatment
+			// @TODO: We should make sure the LM_CONSOLE is present
+			if fnew.Feature == "LM_CONSOLE" {
+				fnew.Version = 1.0
+				// We intentionally add one extra year for LM_CONSOLE!
+				fnew.End = tillDate.AddDate(1, 0, 0)
+			}
 		}
 		newLicset = append(newLicset, fnew)
 	}
@@ -182,6 +194,14 @@ func ChangeLicensesCountImpl(c *gin.Context) {
 			log.Println("Wrong value of the count parameter, ignored: ", err)
 		}
 	}
+	// Retrieve features from the request
+	featuresSet := map[string]bool{}
+	for _, f := range strings.Split(c.Query("restrictTo"), ",") {
+		if f != "" {
+			featuresSet[f] = true
+		}
+	}
+
 	currentLicSet, err := db.LicensesSetByKeyId(keyID)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
@@ -190,8 +210,10 @@ func ChangeLicensesCountImpl(c *gin.Context) {
 	newLicset := []dao.LicenseSetItem{}
 	for _, f := range currentLicSet {
 		fnew := f
-		if newCount > 0 {
-			fnew.Count = newCount
+		if len(featuresSet) == 0 || featuresSet[f.Feature] {
+			if newCount > 0 {
+				fnew.Count = newCount
+			}
 		}
 		newLicset = append(newLicset, fnew)
 	}
