@@ -8,13 +8,14 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"sort"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/vaefremov/pnglic/config"
 	"github.com/vaefremov/pnglic/pkg/dao"
 	"github.com/vaefremov/pnglic/pkg/mailnotify"
-	"github.com/vaefremov/pnglic/config"
 )
 
 // HistoryLicenseFileImpl - Get license file by client id and timestamp of issue
@@ -123,8 +124,18 @@ const featureTemplate = `<%s
 `
 
 func makeXMLFromTemplate(keyID string, db *dao.DbConn, licSet []dao.LicenseSetItem) (res string, err error) {
+	// Sort licenses: individual features first
+	sort.Slice(licSet, func(i, j int) bool {
+		isPackageI, _ := db.IsPackage(licSet[i].Feature)
+		isPackageJ, _ := db.IsPackage(licSet[j].Feature)
+		if isPackageI == isPackageJ {
+			return licSet[i].Feature < licSet[j].Feature
+		}
+		return !isPackageI
+	})
+
 	bodyXML := fmt.Sprintf(`<?xml version="1.0"?><!DOCTYPE license_server>
-	
+
 <license_server port="1234" id="%s">
 	`, keyID)
 	for _, f := range licSet {
