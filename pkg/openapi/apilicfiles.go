@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"sort"
 	"strconv"
 	"time"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/vaefremov/pnglic/config"
 	"github.com/vaefremov/pnglic/pkg/dao"
 	"github.com/vaefremov/pnglic/pkg/mailnotify"
+	"github.com/vaefremov/pnglic/pkg/xmlutils"
 )
 
 // HistoryLicenseFileImpl - Get license file by client id and timestamp of issue
@@ -95,6 +95,11 @@ func MakeLicenseFileImpl(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
 		return
 	}
+	resXML, err = xmlutils.ReorderSingleFeaturesFirst(resXML)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, Error{Code: 2, Message: err.Error()})
+		return
+	}
 	err = db.AddToHistory(clientID, time.Now(), resXML)
 	if mailTo := c.Query("mailTo"); mailTo != "" {
 		clientName, err := db.ClientNameByID(clientID)
@@ -124,15 +129,6 @@ const featureTemplate = `<%s
 `
 
 func makeXMLFromTemplate(keyID string, db *dao.DbConn, licSet []dao.LicenseSetItem) (res string, err error) {
-	// Sort licenses: individual features first
-	sort.Slice(licSet, func(i, j int) bool {
-		isPackageI, _ := db.IsPackage(licSet[i].Feature)
-		isPackageJ, _ := db.IsPackage(licSet[j].Feature)
-		if isPackageI == isPackageJ {
-			return licSet[i].Feature < licSet[j].Feature
-		}
-		return !isPackageI
-	})
 
 	bodyXML := fmt.Sprintf(`<?xml version="1.0"?><!DOCTYPE license_server>
 
