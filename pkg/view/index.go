@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vaefremov/pnglic/config"
+	"github.com/vaefremov/pnglic/pkg/chkexprd"
 	"github.com/vaefremov/pnglic/pkg/dao"
 	"github.com/vaefremov/pnglic/pkg/mailnotify"
 )
@@ -43,6 +44,20 @@ func Index(c *gin.Context) {
 }
 
 func StartPage(c *gin.Context, params *gin.H) {
+	conf := c.MustGet("conf").(*config.Config)
+	db := c.MustGet("db").(*dao.DbConn)
+	expTerm := time.Duration(time.Duration(24) * time.Duration(conf.DaysToExpire1) * time.Hour)
+	expired, err := chkexprd.FindFeaturesWillExpire(db, expTerm)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+	expiredNo := len(expired)
+	fmt.Println(conf.DaysToExpire1)
+	(*params)["expired_no"] = expiredNo
+	(*params)["exp_term"] = expTerm
+	(*params)["exp_days"] = conf.DaysToExpire1
+	(*params)["will_expire"] = expired
 	c.HTML(http.StatusOK, "index.html", params)
 }
 

@@ -8,6 +8,24 @@
   <h1>
     Pangea License Management system
   </h1>
+  [[ if (gt .expired_no  0) ]]
+  <p>Следующие ключи заканчиваются в течение [[ .exp_days ]] дней:</p>
+  <table>
+    <tr>
+      <th>Ключ</th>
+      <th>Клиент</th>
+      <th>Дата окончания</th>
+    </tr>
+    [[ range $key, $value := .will_expire ]]
+    <tr>
+      <td><a onclick="loadPage('keyfeatures.html?keyId=[[$key]]')"   href="#0">[[$key]]</a></td>
+      <td>[[ $value.ClientName ]]</td>
+      <td>[[ $value.ExpTime.Format "2006-01-02" ]]</td>
+    </tr>
+    [[ end]]
+  </table>
+  [[ end ]]
+
   <p>Выберите действие из меню!</p>
 </div>
 
