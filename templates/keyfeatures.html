@@ -35,7 +35,12 @@
                 <td>[[ .Version ]]</td>
                 <td>[[ .Start.Format "2006-01-02" ]] </td>
                 <td>[[ .End.Format "2006-01-02" ]]</td>
-                <td>[[.Count]]</td>
+                <td>[[ if (le .Count 0)]]
+                        <span class="warning badge">!</span>[[.Count]]
+                    [[else]]
+                        [[.Count]]
+                    [[end]]
+                </td>
                 <td>[[.DupGroup]]</td>
               </tr>
               [[ end ]]
