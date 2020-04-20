@@ -1,27 +1,43 @@
 <!--menu.html-->
 
 <script>
-  var loadPageHistory = []
-  const MAX_HISTORY_LEN=10
+  window.onpopstate = function(event) {
+    console.log("popstate", `location: ${document.location}, state: ${JSON.stringify(event.state)}`)
+    if(event.state != null) {
+      loadPageNoReplaceState(event.state['page']);
+    } else {
+      
+      loc = `${document.location}`;
+      if(loc.lastIndexOf('#0') < 0) {
+        window.location.replace("/v1/view/");
+      }
+    }
+  }
 
-  var loadPage = function (page) {
+  var loadPageAndUpdateHistory = function (page, updateState) {
     var xhttp = new XMLHttpRequest();
+    console.log("loadPage", page)
     xhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
-        // Typical action to be performed when the document is ready:
         document.getElementById("main").innerHTML = xhttp.responseText;
         if (page.split('?')[0] === 'keyfeatures.html') {
           reloadDatePicker();
         }
-        if (loadPageHistory[loadPageHistory.length-1] != page)
-          loadPageHistory.push(page);
-        if (loadPageHistory.length > MAX_HISTORY_LEN) {
-          loadPageHistory.shift()
+        if(updateState) {
+          window.history.replaceState({page: page}, "title", page)
         }
       }
     };
     xhttp.open("GET", page, true);
     xhttp.send();
+  }
+
+  var loadPage = function (page) {
+      loadPageAndUpdateHistory(page, true);
+  }
+
+  var loadPageNoReplaceState = function (page) {
+    loadPageAndUpdateHistory(page, false);
   }
 
   var reloadDatePicker = function () {
@@ -32,13 +48,6 @@
 
   }
 
-  var loadPreviousPage = function() {
-    if (loadPageHistory.length > 1) {
-      loadPageHistory.pop() // pop the current page
-      var prevPage = loadPageHistory.pop()
-      loadPage(prevPage);
-    }
-  }
   var selectedFeatures = function(features) {
         url_part = []
         for (f of features) {
@@ -69,9 +78,9 @@
   </div>
   <div class="top-bar-right">
     <ul class="menu">
-      <!-- <li><input type="search" placeholder="Search"></li>
-      <li><button type="button" class="button">Search</button></li> -->
-      <li><button type="button" class="button" onclick="loadPreviousPage()">Back</button></li>
+      <li><input type="search" placeholder="Not yet available" disabled></li>
+      <li><button type="button" class="button">Search</button></li>
+      <!-- <li><button type="button" class="button" onclick="loadPreviousPage()">Back</button></li> -->
     </ul>
   </div>
 </nav>
