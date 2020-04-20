@@ -53,7 +53,7 @@ func StartPage(c *gin.Context, params *gin.H) {
 		return
 	}
 	expiredNo := len(expired)
-	fmt.Println(conf.DaysToExpire1)
+	// fmt.Println(conf.DaysToExpire1, expiredNo)
 	(*params)["expired_no"] = expiredNo
 	(*params)["exp_term"] = expTerm
 	(*params)["exp_days"] = conf.DaysToExpire1
