@@ -40,10 +40,14 @@ func (a *unencryptedAuth) Next(fromServer []byte, more bool) ([]byte, error) {
 
 // New constructs a new notifier to send license files ny e-mail.
 func New(serv string, port int, username string, password string) MailNotifyer {
-	a := smtp.PlainAuth("", username, password, serv)
+	var a smtp.Auth
+	if username != "" {
+		a = smtp.PlainAuth("", username, password, serv)
+	}
 	newM := MailServiceImpl{
 		Serv: serv,
-		A:    a, From: username, MailServPort: serv + fmt.Sprintf(":%d", port),
+		A:    a, 
+		From: username, MailServPort: serv + fmt.Sprintf(":%d", port),
 		To:   []string{},
 		Send: smtp.SendMail,
 	}
@@ -60,7 +64,10 @@ func (m MailServiceImpl) SendFile(clientName string, keyID string, fileBody []by
 	// msg.AddCc(mail.Address{Name: "Vladimir A. Efremov", Address: "budwe1ser@yandex.ru"})
 	fileName := MakeLicenseFileName(clientName, keyID)
 	msg.AttachBuffer(fileName, fileBody, false)
-	s := &unencryptedAuth{m.A}
+	var s smtp.Auth
+	if m.A != nil {
+		s = &unencryptedAuth{m.A}
+	}
 	err := m.Send(m.MailServPort, s, m.From, m.To, msg.Bytes())
 	return err
 }
@@ -80,7 +87,10 @@ func (m *MailServiceImpl) SendMessage(subj string, message string) (err error) {
 	msg.From = mail.Address{Name: "Pangea License Generator", Address: m.From}
 	msg.To = m.To
 	// msg.AddCc(mail.Address{Name: "Vladimir A. Efremov", Address: "budwe1ser@yandex.ru"})
-	s := &unencryptedAuth{m.A}
+	var s smtp.Auth
+	if m.A != nil {
+		s = &unencryptedAuth{m.A}
+	}
 	err = m.Send(m.MailServPort, s, m.From, m.To, msg.Bytes())
 	return err
 }
